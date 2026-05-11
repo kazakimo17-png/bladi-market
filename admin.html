@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bladi Market - Admin</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:Arial,sans-serif; background:#1a1a2e; color:#333; }
+
+/* شاشة تسجيل الدخول */
+#login-screen {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:linear-gradient(135deg,#1a1a2e,#16213e);
+  display:flex; align-items:center; justify-content:center; z-index:1000;
+}
+.login-box {
+  background:white; border-radius:20px; padding:40px 30px;
+  width:90%; max-width:400px; text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
+}
+.login-logo { font-size:50px; margin-bottom:10px; }
+.login-title { font-size:22px; font-weight:bold; color:#006233; margin-bottom:5px; }
+.login-sub { font-size:13px; color:#999; margin-bottom:25px; }
+.login-input {
+  width:100%; padding:13px; border:2px solid #e0e0e0;
+  border-radius:10px; font-size:15px; outline:none; margin-bottom:15px;
+  text-align:right;
+}
+.login-input:focus { border-color:#006233; }
+.login-btn {
+  width:100%; padding:14px; background:linear-gradient(135deg,#006233,#00a550);
+  color:white; border:none; border-radius:10px; font-size:16px;
+  font-weight:bold; cursor:pointer;
+}
+.login-error { color:#e74c3c; font-size:13px; margin-top:10px; display:none; }
+.forgot-link { color:#006233; font-size:13px; margin-top:15px; cursor:pointer; text-decoration:underline; }
+
+/* لوحة التحكم */
+#admin-panel { display:none; }
+
+.admin-header {
+  background:linear-gradient(135deg,#006233,#00a550);
+  color:white; padding:15px 20px;
+  display:flex; justify-content:space-between; align-items:center;
+  position:sticky; top:0; z-index:100;
+}
+.admin-header h1 { font-size:18px; }
+.logout-btn {
+  background:rgba(255,255,255,0.2); border:none; color:white;
+  padding:8px 15px; border-radius:8px; cursor:pointer; font-size:13px;
+}
+
+/* وضع الصيانة */
+.maintenance-bar {
+  background:#e74c3c; color:white; padding:10px 20px;
+  display:flex; justify-content:space-between; align-items:center;
+  display:none;
+}
+.maintenance-bar.active { display:flex; }
+
+/* الإحصائيات */
+.stats-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:12px; padding:15px;
+}
+.stat-card {
+  background:white; border-radius:12px; padding:15px;
+  text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+.stat-icon { font-size:30px; margin-bottom:8px; }
+.stat-num { font-size:28px; font-weight:bold; color:#006233; }
+.stat-label { font-size:12px; color:#999; margin-top:4px; }
+
+/* القائمة */
+.menu-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:12px; padding:0 15px 15px;
+}
+.menu-card {
+  background:white; border-radius:12px; padding:20px 15px;
+  text-align:center; cursor:pointer;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  transition:transform 0.2s;
+}
+.menu-card:active { transform:scale(0.95); }
+.menu-icon { font-size:32px; margin-bottom:8px; }
+.menu-title { font-size:13px; font-weight:bold; color:#333; }
+
+/* الصفحات الداخلية */
+.inner-page {
+  display:none; position:fixed; top:0; left:0;
+  width:100%; height:100%; background:#f5f5f5;
+  z-index:200; overflow-y:auto;
+}
+.inner-header {
+  background:linear-gradient(135deg,#006233,#00a550);
+  color:white; padding:15px;
+  display:flex; align-items:center; gap:10px;
+  position:sticky; top:0;
+}
+.back-btn { font-size:24px; cursor:pointer; }
+
+/* بطاقات الإدارة */
+.item-card {
+  background:white; margin:10px 15px;
+  border-radius:12px; padding:15px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+.item-title { font-weight:bold; font-size:15px; color:#333; }
+.item-sub { font-size:12px; color:#999; margin-top:4px; }
+.item-actions { display:flex; gap:8px; margin-top:12px; }
+.btn-delete { padding:7px 15px; background:#e74c3c; color:white; border:none; border-radius:8px; cursor:pointer; font-size:12px; }
+.btn-move { padding:7px 15px; background:#3498db; color:white; border:none; border-radius:8px; cursor:pointer; font-size:12px; }
+.btn-star { padding:7px 15px; background:#f39c12; color:white; border:none; border-radius:8px; cursor:pointer; font-size:12px; }
+.btn-block { padding:7px 15px; background:#e67e22; color:white; border:none; border-radius:8px; cursor:pointer; font-size:12px; }
+
+/* إضافة قسم */
+.add-section-form {
+  background:white; margin:15px;
+  border-radius:12px; padding:20px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+.form-input {
+  width:100%; padding:12px; border:2px solid #e0e0e0;
+  border-radius:10px; font-size:14px; outline:none; margin-bottom:12px;
+}
+.form-input:focus { border-color:#006233; }
+.btn-green {
+  width:100%; padding:13px; background:#006233;
+  color:white; border:none; border-radius:10px;
+  font-size:15px; font-weight:bold; cursor:pointer;
+}
+
+/* زر الصيانة */
+.maintenance-btn {
+  width:calc(100% - 30px); margin:15px;
+  padding:15px; border:none; border-radius:12px;
+  font-size:16px; font-weight:bold; cursor:pointer;
+}
+.btn-red { background:#e74c3c; color:white; }
+.btn-green-full { background:#006233; color:white; }
+
+/* تغيير كلمة السر */
+.settings-card {
+  background:white; margin:10px 15px;
+  border-radius:12px; padding:20px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+.settings-title { font-weight:bold; font-size:15px; margin-bottom:15px; color:#333; }
+</style>
+</head>
+<body>
+
+<!-- شاشة تسجيل الدخول -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">🛡️</div>
+    <div class="login-title">Bladi Market</div>
+    <div class="login-sub">لوحة تحكم الأدمين</div>
+    <input class="login-input" id="password-input" type="password" placeholder="كلمة السر...">
+    <button class="login-btn" onclick="checkLogin()">🔐 دخول</button>
+    <div class="login-error" id="login-error">❌ كلمة السر خاطئة!</div>
+    <div class="forgot-link" onclick="forgotPassword()">نسيت كلمة السر؟</div>
+  </div>
+</div>
+
+<!-- لوحة التحكم -->
+<div id="admin-panel">
+
+  <!-- هيدر -->
+  <div class="admin-header">
+    <h1>🛡️ لوحة التحكم</h1>
+    <button class="logout-btn" onclick="logout()">خروج 🚪</button>
+  </div>
+
+  <!-- شريط الصيانة -->
+  <div class="maintenance-bar" id="maintenance-bar">
+    <span>⚠️ وضع الصيانة مفعّل</span>
+    <button onclick="toggleMaintenance()" style="background:white;color:#e74c3c;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;">إيقاف</button>
+  </div>
+
+  <!-- الإحصائيات -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-num" id="stat-users">0</div>
+      <div class="stat-label">المستخدمون</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📢</div>
+      <div class="stat-num" id="stat-ads">4</div>
+      <div class="stat-label">الإعلانات</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📂</div>
+      <div class="stat-num" id="stat-cats">5</div>
+      <div class="stat-label">الأقسام</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">👁️</div>
+      <div class="stat-num">128</div>
+      <div class="stat-label">الزيارات اليوم</div>
+    </div>
+  </div>
+
+  <!-- القائمة -->
+  <div class="menu-grid">
+    <div class="menu-card" onclick="openPage('ads-page')">
+      <div class="menu-icon">📢</div>
+      <div class="menu-title">إدارة الإعلانات</div>
+    </div>
+    <div class="menu-card" onclick="openPage('users-page')">
+      <div class="menu-icon">👥</div>
+      <div class="menu-title">إدارة المستخدمين</div>
+    </div>
+    <div class="menu-card" onclick="openPage('cats-page')">
+      <div class="menu-icon">📂</div>
+      <div class="menu-title">إدارة الأقسام</div>
+    </div>
+    <div class="menu-card" onclick="openPage('maintenance-page')">
+      <div class="menu-icon">🔧</div>
+      <div class="menu-title">وضع الصيانة</div>
+    </div>
+    <div class="menu-card" onclick="openPage('settings-page')">
+      <div class="menu-icon">⚙️</div>
+      <div class="menu-title">الإعدادات</div>
+    </div>
+    <div class="menu-card" onclick="openPage('reports-page')">
+      <div class="menu-icon">📊</div>
+      <div class="menu-title">التقارير</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- صفحة الإعلانات -->
+<div class="inner-page" id="ads-page">
+  <div class="inner-header">
+    <span class="back-btn" onclick="closePage('ads-page')">←</span>
+    <span style="font-size:17px;font-weight:bold;">📢 إدارة الإعلانات</span>
+  </div>
+  <div id="ads-list"></div>
+</div>
+
+<!-- صفحة المستخدمين -->
+<div class="inner-page" id="users-page">
+  <div class="inner-header">
+    <span class="back-btn" onclick="closePage('users-page')">←</span>
+    <span style="font-size:17px;font-weight:bold;">👥 إدارة المستخدمين</span>
+  </div>
+  <div id="users-list"></div>
+</div>
+
+<!-- صفحة الأقسام -->
+<div class="inner-page" id="cats-page">
+  <div class="inner-header">
+    <span class="back-btn" onclick="closePage('cats-page')">←</span>
+    <span style="font-size:17px;font-weight:bold;">📂 إدارة الأقسام</span>
+  </div>
+
+  <div class="add-section-form">
+    <div style="font-weight:bold;margin-bottom:15px;font-size:15px;">➕ إضافة قسم جديد</div>
+    <input class="form-input" id="new-cat-name" type="text" placeholder="اسم القسم...">
+    <input class="form-input" id="new-cat-emoji" type="text" placeholder="أيقونة القسم (مثال: 🍕)">
+    <button class="btn-green" onclick="addCategory()">✅ إضافة القسم</button>
+  </div>
+
+  <div id="cats-list"></div>
+</div>
+
+<!-- صفحة الصيانة -->
+<div class="inner-page" id="maintenance-page">
+  <div class="inner-header">
+    <span class="back-btn" onclick="closePage('maintenance-page')">←</span>
+    <span style="font-size:17px;font-weight:bold;">🔧 وضع الصيانة</span>
+  </div>
+
+  <div class="item-card" style="margin:15px;">
+    <div class="item-title">⚠️ تفعيل وضع الصيانة</div>
+    <div class="item-sub" style="margin-bottom:15px;">عند التفعيل يرى المستخدمون رسالة صيانة بدل التطبيق</div>
+    <button id="maintenance-toggle-btn" class="maintenance-btn btn-red" onclick="toggleMaintenance()">
+      🔴 تفعيل وضع الصيانة
+    </button>
+  </div>
+
+  <div class="add-section-form">
+    <div style="font-weight:bold;margin-bottom:10px;">✏️ رسالة الصيانة</div>
+    <textarea class="form-input" id="maintenance-msg" style="height:80px;resize:none;" placeholder="مثال: نحن في تحديث، نعود قريباً...">نحن في تحديث للتطبيق، نعود قريباً! 🚀</textarea>
+    <button class="btn-green" onclick="saveMaintMsg()">💾 حفظ الرسالة</button>
+  </div>
+</div>
+
+<!-- صفحة الإعدادات -->
+<div class="inner-page" id="settings-page">
+  <div class="inner-header">
+    <span class="back-btn" onclick="closePage('settings-page')">←</span>
+    <span style="font-size:17px;font-weight:bold;">⚙️ الإعدادات</span>
+  </div>
+
+  <div class="settings-card">
+    <div class="settings-title">🔑 تغيير كلمة السر</div>
+    <input class="form-input" id="old-pass" type="password" placeholder="كلمة السر الحالية...">
+    <input class="form-input" id="new-pass" type="password" placeholder="كلمة السر الجديدة...">
+    <input class="form-input" id="confirm-pass" type="password" placeholder="تأكيد كلمة السر الجديدة...">
+    <button class="btn-green" onclick="changePassword()">🔐 تغيير كلمة السر</button>
+  </div>
+
+  <div class="settings-card">
+    <div class="settings-title">📧 إيميل الاسترداد</div>
+    <input class="form-input" id="recovery-email" type="email" value="kamelkime@gmail.com">
+    <button class="btn-green" onclick="saveEmail()">💾 حفظ الإيميل</button>
+  </div>
+</div>
+
+<!-- صفحة التقارير -->
+<div class="inner-page" id="reports-page">
+  <div class="inner-header">
+    <span class="back-btn" onclick="closePage('reports-page')">←</span>
+    <span style="font-size:17px;font-weight:bold;">📊 التقارير</span>
+  </div>
+
+  <div class="stats-grid" style="padding:15px;">
+    <div class="stat-card">
+      <div class="stat-icon">📈</div>
+      <div class="stat-num">128</div>
+      <div class="stat-label">زيارات اليوم</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📅</div>
+      <div class="stat-num">854</div>
+      <div class="stat-label">زيارات الأسبوع</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🏆</div>
+      <div class="stat-num">أكل</div>
+      <div class="stat-label">أكثر قسم نشاطاً</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⭐</div>
+      <div class="stat-num">4.8</div>
+      <div class="stat-label">متوسط التقييم</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let adminPassword = 'Guelma%2009';
+let maintenanceMode = false;
+
+const categories = [
+  { name:'أكل بيتي', emoji:'🍔' },
+  { name:'منتجات طبيعية', emoji:'🍯' },
+  { name:'عقارات', emoji:'🔑' },
+  { name:'موضة', emoji:'👗' },
+  { name:'وظائف', emoji:'💼' }
+];
+
+const ads = [
+  { title:'كسكس بيتي', price:'500 دج', cat:'أكل بيتي', seller:'أم محمد' },
+  { title:'عسل طبيعي', price:'2000 دج', cat:'منتجات طبيعية', seller:'الحاج علي' },
+  { title:'شقة للإيجار', price:'15,000 دج', cat:'عقارات', seller:'أبو يوسف' },
+  { title:'ملابس نسائية', price:'1200 دج', cat:'موضة', seller:'بوتيك سارة' }
+];
+
+const users = [
+  { name:'أم محمد', phone:'0555000000', ads:1, status:'نشط' },
+  { name:'الحاج علي', phone:'0555000001', ads:1, status:'نشط' },
+  { name:'أبو يوسف', phone:'0555000002', ads:1, status:'نشط' },
+  { name:'بوتيك سارة', phone:'0555000003', ads:1, status:'نشط' }
+];
+
+// تسجيل الدخول
+function checkLogin() {
+  const input = document.getElementById('password-input').value;
+  if (input === adminPassword) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'block';
+    loadData();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+// خروج
+function logout() {
+  document.getElementById('admin-panel').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('password-input').value = '';
+}
+
+// فتح صفحة
+function openPage(id) {
+  document.getElementById(id).style.display = 'block';
+  if (id === 'ads-page') loadAds();
+  if (id === 'users-page') loadUsers();
+  if (id === 'cats-page') loadCategories();
+}
+
+// إغلاق صفحة
+function closePage(id) {
+  document.getElementById(id).style.display = 'none';
+}
+
+// تحميل الإعلانات
+function loadAds() {
+  const list = document.getElementById('ads-list');
+  list.innerHTML = ads.map((ad, i) => `
+    <div class="item-card">
+      <div class="item-title">${ad.title}</div>
+      <div class="item-sub">💰 ${ad.price} | 📂 ${ad.cat} | 👤 ${ad.seller}</div>
+      <div class="item-actions">
+        <button class="btn-delete" onclick="deleteAd(${i})">🗑️ حذف</button>
+        <button class="btn-move" onclick="moveAd(${i})">📂 نقل</button>
+        <button class="btn-star" onclick="starAd(${i})">⭐ تمييز</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// تحميل المستخدمين
+function loadUsers() {
+  const list = document.getElementById('users-list');
+  list.innerHTML = users.map((u, i) => `
+    <div class="item-card">
+      <div class="item-title">👤 ${u.name}</div>
+      <div class="item-sub">📞 ${u.phone} | 📢 ${u.ads} إعلانات | ✅ ${u.status}</div>
+      <div class="item-actions">
+        <button class="btn-block" onclick="blockUser(${i})">🚫 حظر</button>
+        <button class="btn-delete" onclick="deleteUser(${i})">🗑️ حذف</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// تحميل الأقسام
+function loadCategories() {
+  const list = document.getElementById('cats-list');
+  list.innerHTML = categories.map((c, i) => `
+    <div class="item-card">
+      <div class="item-title">${c.emoji} ${c.name}</div>
+      <div class="item-actions">
+        <button class="btn-delete" onclick="deleteCat(${i})">🗑️ حذف</button>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('stat-cats').innerText = categories.length;
+}
+
+// إضافة قسم
+function addCategory() {
+  const name = document.getElementById('new-cat-name').value.trim();
+  const emoji = document.getElementById('new-cat-emoji').value.trim();
+  if (!name || !emoji) { alert('⚠️ أدخل الاسم والأيقونة!'); return; }
+  categories.push({ name, emoji });
+  loadCategories();
+  document.getElementById('new-cat-name').value = '';
+  document.getElementById('new-cat-emoji').value = '';
+  alert('✅ تم إضافة القسم!');
+}
+
+// حذف قسم
+function deleteCat(i) {
+  if (confirm('هل تريد حذف هذا القسم؟')) {
+    categories.splice(i, 1);
+    loadCategories();
+  }
+}
+
+// حذف إعلان
+function deleteAd(i) {
+  if (confirm('هل تريد حذف هذا الإعلان؟')) {
+    ads.splice(i, 1);
+    loadAds();
+    document.getElementById('stat-ads').innerText = ads.length;
+  }
+}
+
+// نقل إعلان
+function moveAd(i) {
+  const cats = categories.map(c => c.name).join('\n');
+  const newCat = prompt('اختر القسم:\n' + cats);
+  if (newCat) {
+    ads[i].cat = newCat;
+    loadAds();
+    alert('✅ تم نقل الإعلان!');
+  }
+}
+
+// تمييز إعلان
+function starAd(i) {
+  alert('⭐ تم تمييز الإعلان: ' + ads[i].title);
+}
+
+// حظر مستخدم
+function blockUser(i) {
+  if (confirm('هل تريد حظر ' + users[i].name + '؟')) {
+    users[i].status = '🚫 محظور';
+    loadUsers();
+  }
+}
+
+// حذف مستخدم
+function deleteUser(i) {
+  if (confirm('هل تريد حذف ' + users[i].name + '؟')) {
+    users.splice(i, 1);
+    loadUsers();
+    document.getElementById('stat-users').innerText = users.length;
+  }
+}
+
+// وضع الصيانة
+function toggleMaintenance() {
+  maintenanceMode = !maintenanceMode;
+  const bar = document.getElementById('maintenance-bar');
+  const btn = document.getElementById('maintenance-toggle-btn');
+  if (maintenanceMode) {
+    bar.classList.add('active');
+    btn.className = 'maintenance-btn btn-green-full';
+    btn.innerText = '🟢 إيقاف وضع الصيانة';
+    alert('⚠️ تم تفعيل وضع الصيانة!');
+  } else {
+    bar.classList.remove('active');
+    btn.className = 'maintenance-btn btn-red';
+    btn.innerText = '🔴 تفعيل وضع الصيانة';
+    alert('✅ تم إيقاف وضع الصيانة!');
+  }
+}
+
+// حفظ رسالة الصيانة
+function saveMaintMsg() {
+  alert('✅ تم حفظ رسالة الصيانة!');
+}
+
+// تغيير كلمة السر
+function changePassword() {
+  const old = document.getElementById('old-pass').value;
+  const newP = document.getElementById('new-pass').value;
+  const conf = document.getElementById('confirm-pass').value;
+  if (old !== adminPassword) { alert('❌ كلمة السر الحالية خاطئة!'); return; }
+  if (newP !== conf) { alert('❌ كلمة السر الجديدة غير متطابقة!'); return; }
+  if (newP.length < 6) { alert('❌ كلمة السر قصيرة جداً!'); return; }
+  adminPassword = newP;
+  alert('✅ تم تغيير كلمة السر بنجاح!');
+  document.getElementById('old-pass').value = '';
+  document.getElementById('new-pass').value = '';
+  document.getElementById('confirm-pass').value = '';
+}
+
+// حفظ الإيميل
+function saveEmail() {
+  alert('✅ تم حفظ الإيميل!');
+}
+
+// نسيت كلمة السر
+function forgotPassword() {
+  alert('📧 تم إرسال كلمة السر إلى: kamelkime@gmail.com');
+}
+
+// تحميل البيانات
+function loadData() {
+  document.getElementById('stat-users').innerText = users.length;
+  document.getElementById('stat-ads').innerText = ads.length;
+  document.getElementById('stat-cats').innerText = categories.length;
+
+  // زيارات عشوائية للتجربة
+  const visits = Math.floor(Math.random() * 200) + 50;
+  document.querySelectorAll('.stat-num')[3].innerText = visits;
+}
+// دخول بضغط Enter
+document.getElementById('password-input').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') checkLogin();
+});
+</script>
+</body>
+</html>
