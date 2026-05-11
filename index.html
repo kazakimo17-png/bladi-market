@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bladi Market</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:Arial,sans-serif; background:#f5f5f5; }
+.header { background:#2ecc71; color:white; padding:15px; text-align:center; position:sticky; top:0; z-index:100; }
+.header h1 { font-size:20px; }
+.search-bar { margin:10px; padding:8px 15px; border-radius:20px; border:none; width:calc(100% - 20px); font-size:14px; }
+.categories { display:flex; overflow-x:auto; padding:10px; gap:10px; background:white; }
+.cat-btn { padding:8px 15px; border-radius:20px; border:2px solid #2ecc71; background:white; color:#2ecc71; white-space:nowrap; font-size:13px; cursor:pointer; }
+.cat-btn.active { background:#2ecc71; color:white; }
+.section-title { padding:15px; font-size:16px; font-weight:bold; color:#333; }
+.cards { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 10px 10px; }
+.card { background:white; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1); cursor:pointer; }
+.card-img { width:100%; height:100px; display:flex; align-items:center; justify-content:center; font-size:50px; background:#f0f0f0; }
+.card-info { padding:8px; }
+.card-title { font-size:13px; font-weight:bold; color:#333; }
+.card-price { font-size:12px; color:#2ecc71; margin-top:4px; }
+.card-location { font-size:11px; color:#999; margin-top:2px; }
+.bottom-nav { position:fixed; bottom:0; width:100%; background:white; display:flex; justify-content:space-around; padding:10px 0; box-shadow:0 -2px 10px rgba(0,0,0,0.1); z-index:100; }
+.nav-item { display:flex; flex-direction:column; align-items:center; font-size:10px; color:#999; cursor:pointer; }
+.nav-item.active { color:#2ecc71; }
+.nav-icon { font-size:22px; }
+.content { padding-bottom:70px; }
+.page { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#f5f5f5; z-index:200; overflow-y:auto; }
+.page-header { background:#2ecc71; padding:15px; display:flex; align-items:center; gap:10px; position:sticky; top:0; }
+.page-header span { color:white; }
+.back-btn { font-size:24px; cursor:pointer; }
+.page-title { font-size:18px; font-weight:bold; }
+.detail-img { width:100%; height:200px; display:flex; align-items:center; justify-content:center; font-size:80px; background:#e0e0e0; }
+.info-card { background:white; margin:10px; border-radius:12px; padding:15px; }
+.info-label { font-weight:bold; margin-bottom:8px; }
+.info-text { color:#666; font-size:14px; line-height:1.6; }
+.seller-row { display:flex; align-items:center; gap:10px; }
+.seller-avatar { width:50px; height:50px; background:#2ecc71; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; }
+.btn-row { margin:10px; display:flex; gap:10px; padding-bottom:20px; }
+.btn-green { flex:1; padding:15px; background:#2ecc71; color:white; border:none; border-radius:12px; font-size:16px; cursor:pointer; }
+.btn-wa { flex:1; padding:15px; background:#25D366; color:white; border:none; border-radius:12px; font-size:16px; cursor:pointer; }
+.form-group { margin-bottom:15px; }
+.form-label { font-weight:bold; color:#333; display:block; margin-bottom:5px; }
+.form-input { width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px; outline:none; }
+.emoji-grid { display:flex; flex-wrap:wrap; gap:10px; }
+.emoji-btn { font-size:30px; cursor:pointer; padding:8px; border:2px solid #e0e0e0; border-radius:10px; background:white; }
+.emoji-btn.selected { border:2px solid #2ecc71; background:#f0fff4; }
+</style>
+</head>
+<body>
+
+<div class="header">
+<h1 style="font-family:Georgia,serif; letter-spacing:1px;">🇩🇿 Bladi Market</h1>
+  <input class="search-bar" type="text" placeholder="🔍 ابحث عن منتج أو خدمة...">
+</div>
+
+<div class="categories">
+  <button class="cat-btn active">🏠 الكل</button>
+  <button class="cat-btn">🍔 أكل</button>
+  <button class="cat-btn">🍯 طبيعي</button>
+  <button class="cat-btn">🔑 عقارات</button>
+  <button class="cat-btn">👗 موضة</button>
+  <button class="cat-btn">💼 وظائف</button>
+</div>
+
+<div class="content">
+  <div class="section-title">🔥 أحدث الإعلانات</div>
+  <div class="cards" id="cards-container">
+    <div class="card" onclick="openProduct(0)">
+      <div class="card-img">🍲</div>
+      <div class="card-info">
+        <div class="card-title">كسكس بيتي</div>
+        <div class="card-price">500 دج</div>
+        <div class="card-location">📍 المنطقة المحلية</div>
+      </div>
+    </div>
+    <div class="card" onclick="openProduct(1)">
+      <div class="card-img">🍯</div>
+      <div class="card-info">
+        <div class="card-title">عسل طبيعي</div>
+        <div class="card-price">2000 دج</div>
+        <div class="card-location">📍 المنطقة المحلية</div>
+      </div>
+    </div>
+    <div class="card" onclick="openProduct(2)">
+      <div class="card-img">🏠</div>
+      <div class="card-info">
+        <div class="card-title">شقة للإيجار</div>
+        <div class="card-price">15,000 دج/شهر</div>
+        <div class="card-location">📍 المنطقة المحلية</div>
+      </div>
+    </div>
+    <div class="card" onclick="openProduct(3)">
+      <div class="card-img">👗</div>
+      <div class="card-info">
+        <div class="card-title">ملابس نسائية</div>
+        <div class="card-price">1200 دج</div>
+        <div class="card-location">📍 المنطقة المحلية</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- الشريط السفلي -->
+<div class="bottom-nav">
+  <div class="nav-item active" onclick="goHome()">
+    <span class="nav-icon">🏠</span>
+    <span>الرئيسية</span>
+  </div>
+  <div class="nav-item" onclick="focusSearch()">
+  <span class="nav-icon">🔍</span>
+  <span>بحث</span>
+</div>
+  <div class="nav-item" onclick="openAddPage()">
+    <span class="nav-icon">➕</span>
+    <span>أضف</span>
+  </div>
+<div class="nav-item" onclick="openMessagesPage()">
+  <span class="nav-icon">💬</span>
+  <span>رسائل</span>
+</div>
+<div class="nav-item" onclick="openProfilePage()">
+  <span class="nav-icon">👤</span>
+  <span>حسابي</span>
+</div>
+</div>
+
+<!-- صفحة تفاصيل المنتج -->
+<div class="page" id="product-page">
+  <div class="page-header">
+    <span class="back-btn" onclick="goHome()">←</span>
+    <span class="page-title">تفاصيل المنتج</span>
+  </div>
+  <div class="detail-img" id="detail-img"></div>
+  <div class="info-card">
+    <div id="detail-title" style="font-size:20px;font-weight:bold;"></div>
+    <div id="detail-price" style="font-size:18px;color:#2ecc71;margin-top:8px;"></div>
+    <div id="detail-location" style="font-size:13px;color:#999;margin-top:5px;"></div>
+  </div>
+  <div class="info-card">
+    <div class="info-label">📋 وصف المنتج</div>
+    <div class="info-text" id="detail-desc"></div>
+  </div>
+  <div class="info-card">
+    <div class="info-label">👤 البائع</div>
+    <div class="seller-row">
+      <div class="seller-avatar">👤</div>
+      <div>
+        <div id="detail-seller" style="font-weight:bold;"></div>
+        <div style="color:#999;font-size:12px;">⭐ 4.8 | عضو منذ 2024</div>
+      </div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn-green" id="call-btn" onclick="callSeller()">📞 اتصال</button>
+    <button class="btn-wa" onclick="whatsappSeller()">💬 واتساب</button>
+  </div>
+</div>
+
+<!-- صفحة إضافة إعلان -->
+<div class="page" id="add-page">
+  <div class="page-header">
+    <span class="back-btn" onclick="goHome()">←</span>
+    <span class="page-title">➕ إضافة إعلان</span>
+  </div>
+  <div style="padding:15px;padding-bottom:30px;">
+    <div class="form-group">
+      <label class="form-label">📦 اسم المنتج</label>
+      <input class="form-input" id="add-title" type="text" placeholder="مثال: عسل طبيعي...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">💰 السعر (دج)</label>
+      <input class="form-input" id="add-price" type="number" placeholder="مثال: 1500">
+    </div>
+    <div class="form-group">
+      <label class="form-label">📂 الفئة</label>
+      <select class="form-input" id="add-category">
+        <option>🍔 أكل بيتي</option>
+        <option>🍯 منتجات طبيعية</option>
+        <option>🔑 عقارات</option>
+        <option>👗 موضة</option>
+        <option>💼 وظائف</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">📞 رقم الهاتف</label>
+      <input class="form-input" id="add-phone" type="tel" placeholder="مثال: 0555000000">
+    </div>
+    <div class="form-group">
+      <label class="form-label">📍 الموقع</label>
+      <input class="form-input" id="add-location" type="text" placeholder="مثال: وهران، قسنطينة...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">📄 وصف المنتج</label>
+      <textarea class="form-input" id="add-desc" placeholder="اكتب وصفاً مفصلاً..." style="height:100px;resize:none;"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">🎨 اختر أيقونة</label>
+      <div class="emoji-grid">
+        <span class="emoji-btn" onclick="selectEmoji(this)">🍲</span>
+        <span class="emoji-btn" onclick="selectEmoji(this)">🍯</span>
+        <span class="emoji-btn" onclick="selectEmoji(this)">🏠</span>
+        <span class="emoji-btn" onclick="selectEmoji(this)">👗</span>
+        <span class="emoji-btn" onclick="selectEmoji(this)">💼</span>
+        <span class="emoji-btn" onclick="selectEmoji(this)">🌿</span>
+        <span class="emoji-btn" onclick="selectEmoji(this)">🚗</span>
+        <span class="emoji-btn" onclick="selectEmoji(this)">📱</span>
+      </div>
+    </div>
+    <button class="btn-green" style="width:100%;margin-top:10px;" onclick="publishAd()">🚀 نشر الإعلان</button>
+  </div>
+</div>
+
+<script>
+const products = [
+  { title:"كسكس بيتي", price:"500 دج", location:"📍 المنطقة المحلية", img:"🍲", desc:"كسكس بيتي طازج مطبوخ بطريقة تقليدية أصيلة، مع اللحم والخضروات الطازجة.", seller:"أم محمد", phone:"0555000000" },
+  { title:"عسل طبيعي", price:"2000 دج", location:"📍 المنطقة المحلية", img:"🍯", desc:"عسل طبيعي 100% من مناطق جبلية نقية، بدون إضافات.", seller:"الحاج علي", phone:"0555000001" },
+  { title:"شقة للإيجار", price:"15,000 دج/شهر", location:"📍 المنطقة المحلية", img:"🏠", desc:"شقة F3 في الطابق الثاني، مفروشة بالكامل، متاحة فوراً.", seller:"أبو يوسف", phone:"0555000002" },
+  { title:"ملابس نسائية", price:"1200 دج", location:"📍 المنطقة المحلية", img:"👗", desc:"ملابس نسائية عصرية، مقاسات متعددة، جودة عالية.", seller:"بوتيك سارة", phone:"0555000003" }
+];
+
+let selectedEmoji = "📦";
+let currentPhone = "";
+
+function openProduct(index) {
+  const p = products[index];
+  document.getElementById('detail-img').innerText = p.img;
+  document.getElementById('detail-title').innerText = p.title;
+  document.getElementById('detail-price').innerText = p.price;
+  document.getElementById('detail-location').innerText = p.location;
+  document.getElementById('detail-desc').innerText = p.desc;
+  document.getElementById('detail-seller').innerText = p.seller;
+  currentPhone = p.phone;
+  document.getElementById('product-page').style.display = 'block';
+}
+function openMessagesPage() {
+  document.getElementById('messages-page').style.display = 'block';
+}
+
+function openChat(name, emoji) {
+  document.getElementById('chat-name').innerText = emoji + ' ' + name;
+  document.getElementById('chat-messages').innerHTML = `
+    <div style="text-align:center; color:#999; font-size:12px; margin-bottom:15px;">اليوم</div>
+    <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+      <div style="background:#2ecc71; color:white; padding:10px 15px; border-radius:18px 18px 0 18px; max-width:70%; font-size:14px;">السلام عليكم، هل المنتج متوفر؟</div>
+    </div>
+    <div style="display:flex; justify-content:flex-start; margin-bottom:10px;">
+      <div style="background:white; padding:10px 15px; border-radius:18px 18px 18px 0; max-width:70%; font-size:14px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">وعليكم السلام، نعم متوفر 😊</div>
+    </div>
+  `;
+  document.getElementById('chat-page').style.display = 'block';
+}
+
+function closeChat() {
+  document.getElementById('chat-page').style.display = 'none';
+}
+
+function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const messagesDiv = document.getElementById('chat-messages');
+  const msg = document.createElement('div');
+  msg.style = 'display:flex; justify-content:flex-end; margin-bottom:10px;';
+  msg.innerHTML = `<div style="background:#2ecc71; color:white; padding:10px 15px; border-radius:18px 18px 0 18px; max-width:70%; font-size:14px;">${text}</div>`;
+  messagesDiv.appendChild(msg);
+  input.value = '';
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+function openProfilePage() {
+  document.getElementById('profile-page').style.display = 'block';
+}
+
+function saveProfile() {
+  const name = document.getElementById('profile-name').value.trim();
+  if (!name) {
+    alert('⚠️ أدخل اسمك!');
+    return;
+  }
+  alert('✅ تم حفظ معلوماتك!');
+}
+function focusSearch() {
+  window.scrollTo(0, 0);
+  document.querySelector('.search-bar').focus();
+}
+
+function openAddPage() {
+  document.getElementById('add-page').style.display = 'block';
+}
+function goHome() {
+  document.getElementById('product-page').style.display = 'none';
+  document.getElementById('add-page').style.display = 'none';
+  document.getElementById('profile-page').style.display = 'none';
+  document.getElementById('messages-page').style.display = 'none';
+  document.getElementById('chat-page').style.display = 'none';
+}
+function callSeller() {
+  window.location.href = 'tel:' + currentPhone;
+}
+
+function whatsappSeller() {
+  window.open('https://wa.me/' + currentPhone);
+}
+
+function selectEmoji(el) {
+  document.querySelectorAll('.emoji-btn').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedEmoji = el.innerText;
+}
+
+function publishAd() {
+  const title = document.getElementById('add-title').value.trim();
+  const price = document.getElementById('add-price').value.trim();
+  const phone = document.getElementById('add-phone').value.trim();
+  const location = document.getElementById('add-location').value.trim();
+  const desc = document.getElementById('add-desc').value.trim();
+
+  if (!title || !price || !phone || !location) {
+    alert('⚠️ يرجى ملء جميع الحقول!');
+    return;
+  }
+
+  products.push({ title, price: price+' دج', location:'📍 '+location, img:selectedEmoji, desc:desc||'لا يوجد وصف', seller:'مستخدم جديد', phone });
+
+  const index = products.length - 1;
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.onclick = () => openProduct(index);
+  card.innerHTML = `
+    <div class="card-img">${selectedEmoji}</div>
+    <div class="card-info">
+      <div class="card-title">${title}</div>
+      <div class="card-price">${price} دج</div>
+      <div class="card-location">📍 ${location}</div>
+    </div>`;
+  document.getElementById('cards-container').appendChild(card);
+
+  alert('✅ تم نشر إعلانك بنجاح!');
+  goHome();
+  document.getElementById('add-title').value = '';
+  document.getElementById('add-price').value = '';
+  document.getElementById('add-phone').value = '';
+  document.getElementById('add-location').value = '';
+  document.getElementById('add-desc').value = '';
+  selectedEmoji = '📦';
+}
+
+// تفعيل البحث
+document.querySelector('.search-bar').addEventListener('input', function() {
+  filterProducts(this.value, currentCategory);
+});
+
+// تفعيل الفئات
+let currentCategory = 'الكل';
+document.querySelectorAll('.cat-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCategory = btn.innerText.trim();
+    filterProducts(document.querySelector('.search-bar').value, currentCategory);
+  });
+});
+
+// دالة التصفية
+function filterProducts(search, category) {
+  const container = document.getElementById('cards-container');
+  container.innerHTML = '';
+
+  const filtered = products.filter(p => {
+    const matchSearch = p.title.includes(search) || p.desc.includes(search);
+    const matchCategory =
+      category.includes('الكل') ||
+      category.includes('أكل') && p.img === '🍲' ||
+      category.includes('طبيعي') && p.img === '🍯' ||
+      category.includes('عقارات') && p.img === '🏠' ||
+      category.includes('موضة') && p.img === '👗' ||
+      category.includes('وظائف') && p.img === '💼';
+    return matchSearch && matchCategory;
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:#999;grid-column:span 2;">😕 لا توجد نتائج</div>';
+    return;
+  }
+
+  filtered.forEach((p, i) => {
+    const index = products.indexOf(p);
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.onclick = () => openProduct(index);
+    card.innerHTML = `
+      <div class="card-img">${p.img}</div>
+      <div class="card-info">
+        <div class="card-title">${p.title}</div>
+        <div class="card-price">${p.price}</div>
+        <div class="card-location">${p.location}</div>
+      </div>`;
+    container.appendChild(card);
+  });
+}
+</script>
+<!-- صفحة حسابي -->
+<div class="page" id="profile-page">
+  <div class="page-header">
+    <span class="back-btn" onclick="goHome()">←</span>
+    <span class="page-title">👤 حسابي</span>
+  </div>
+
+  <div style="text-align:center; padding:30px;">
+    <div style="width:100px; height:100px; background:#2ecc71; border-radius:50%; margin:0 auto; display:flex; align-items:center; justify-content:center; font-size:50px;">👤</div>
+    <div style="margin-top:15px; font-size:20px; font-weight:bold;">مستخدم جديد</div>
+    <div style="color:#999; font-size:14px;">عضو منذ 2025</div>
+  </div>
+
+  <div class="info-card">
+    <div class="form-group">
+      <label class="form-label">👤 الاسم</label>
+      <input class="form-input" id="profile-name" type="text" placeholder="اكتب اسمك...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">📞 الهاتف</label>
+      <input class="form-input" id="profile-phone" type="tel" placeholder="رقم هاتفك...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">📍 المنطقة</label>
+      <input class="form-input" id="profile-location" type="text" placeholder="مدينتك...">
+    </div>
+    <button class="btn-green" style="width:100%;" onclick="saveProfile()">💾 حفظ المعلومات</button>
+  </div>
+
+  <div class="info-card">
+    <div class="info-label">📊 إحصائياتي</div>
+    <div style="display:flex; justify-content:space-around; margin-top:15px;">
+      <div style="text-align:center;">
+        <div style="font-size:24px; font-weight:bold; color:#2ecc71;" id="my-ads-count">0</div>
+        <div style="font-size:12px; color:#999;">إعلاناتي</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:24px; font-weight:bold; color:#2ecc71;">0</div>
+        <div style="font-size:12px; color:#999;">المشاهدات</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:24px; font-weight:bold; color:#2ecc71;">⭐ 5.0</div>
+        <div style="font-size:12px; color:#999;">تقييمي</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<!-- صفحة الرسائل -->
+<div class="page" id="messages-page">
+  <div class="page-header">
+    <span class="back-btn" onclick="goHome()">←</span>
+    <span class="page-title">💬 الرسائل</span>
+  </div>
+
+  <div id="messages-list">
+
+    <!-- محادثة 1 -->
+    <div onclick="openChat('أم محمد', '🍲')" style="background:white; padding:15px; display:flex; align-items:center; gap:15px; border-bottom:1px solid #f0f0f0; cursor:pointer;">
+      <div style="width:55px; height:55px; background:#2ecc71; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px;">🍲</div>
+      <div style="flex:1;">
+        <div style="font-weight:bold; font-size:15px;">أم محمد</div>
+        <div style="color:#999; font-size:13px; margin-top:3px;">السلام عليكم، هل المنتج متوفر؟</div>
+      </div>
+      <div style="color:#999; font-size:11px;">الآن</div>
+    </div>
+
+    <!-- محادثة 2 -->
+    <div onclick="openChat('الحاج علي', '🍯')" style="background:white; padding:15px; display:flex; align-items:center; gap:15px; border-bottom:1px solid #f0f0f0; cursor:pointer;">
+      <div style="width:55px; height:55px; background:#f39c12; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px;">🍯</div>
+      <div style="flex:1;">
+        <div style="font-weight:bold; font-size:15px;">الحاج علي</div>
+        <div style="color:#999; font-size:13px; margin-top:3px;">شكراً على تواصلك معنا</div>
+      </div>
+      <div style="color:#999; font-size:11px;">أمس</div>
+    </div>
+
+    <!-- محادثة 3 -->
+    <div onclick="openChat('بوتيك سارة', '👗')" style="background:white; padding:15px; display:flex; align-items:center; gap:15px; border-bottom:1px solid #f0f0f0; cursor:pointer;">
+      <div style="width:55px; height:55px; background:#9b59b6; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px;">👗</div>
+      <div style="flex:1;">
+        <div style="font-weight:bold; font-size:15px;">بوتيك سارة</div>
+        <div style="color:#999; font-size:13px; margin-top:3px;">المقاس المتوفر هو L و XL</div>
+      </div>
+      <div style="color:#999; font-size:11px;">الاثنين</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- صفحة المحادثة -->
+<div class="page" id="chat-page">
+  <div class="page-header">
+    <span class="back-btn" onclick="closeChat()">←</span>
+    <span class="page-title" id="chat-name"></span>
+  </div>
+
+  <div id="chat-messages" style="padding:15px; padding-bottom:80px; min-height:400px;">
+  </div>
+
+  <div style="position:fixed; bottom:0; width:100%; background:white; padding:10px; display:flex; gap:10px; box-shadow:0 -2px 10px rgba(0,0,0,0.1);">
+    <input id="chat-input" type="text" placeholder="اكتب رسالة..." style="flex:1; padding:12px; border:2px solid #e0e0e0; border-radius:25px; outline:none; font-size:14px;">
+    <button onclick="sendMessage()" style="width:50px; height:50px; background:#2ecc71; border:none; border-radius:50%; font-size:22px; cursor:pointer;">➤</button>
+  </div>
+</div>
+</body>
+</html>
