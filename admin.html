@@ -3,574 +3,938 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bladi Market - Admin</title>
+<title>Bladi Market</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:Arial,sans-serif; background:#1a1a2e; color:#333; }
-
-/* شاشة تسجيل الدخول */
-#login-screen {
-  position:fixed; top:0; left:0; width:100%; height:100%;
-  background:linear-gradient(135deg,#1a1a2e,#16213e);
-  display:flex; align-items:center; justify-content:center; z-index:1000;
-}
-.login-box {
-  background:white; border-radius:20px; padding:40px 30px;
-  width:90%; max-width:400px; text-align:center;
-  box-shadow:0 20px 60px rgba(0,0,0,0.5);
-}
-.login-logo { font-size:50px; margin-bottom:10px; }
-.login-title { font-size:22px; font-weight:bold; color:#006233; margin-bottom:5px; }
-.login-sub { font-size:13px; color:#999; margin-bottom:25px; }
-.login-input {
-  width:100%; padding:13px; border:2px solid #e0e0e0;
-  border-radius:10px; font-size:15px; outline:none; margin-bottom:15px;
-  text-align:right;
-}
-.login-input:focus { border-color:#006233; }
-.login-btn {
-  width:100%; padding:14px; background:linear-gradient(135deg,#006233,#00a550);
-  color:white; border:none; border-radius:10px; font-size:16px;
-  font-weight:bold; cursor:pointer;
-}
-.login-error { color:#e74c3c; font-size:13px; margin-top:10px; display:none; }
-.forgot-link { color:#006233; font-size:13px; margin-top:15px; cursor:pointer; text-decoration:underline; }
-
-/* لوحة التحكم */
-#admin-panel { display:none; }
-
-.admin-header {
-  background:linear-gradient(135deg,#006233,#00a550);
-  color:white; padding:15px 20px;
-  display:flex; justify-content:space-between; align-items:center;
-  position:sticky; top:0; z-index:100;
-}
-.admin-header h1 { font-size:18px; }
-.logout-btn {
-  background:rgba(255,255,255,0.2); border:none; color:white;
-  padding:8px 15px; border-radius:8px; cursor:pointer; font-size:13px;
-}
-
-/* وضع الصيانة */
-.maintenance-bar {
-  background:#e74c3c; color:white; padding:10px 20px;
-  display:flex; justify-content:space-between; align-items:center;
-  display:none;
-}
-.maintenance-bar.active { display:flex; }
-
-/* الإحصائيات */
-.stats-grid {
-  display:grid; grid-template-columns:1fr 1fr;
-  gap:12px; padding:15px;
-}
-.stat-card {
-  background:white; border-radius:12px; padding:15px;
-  text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.1);
-}
-.stat-icon { font-size:30px; margin-bottom:8px; }
-.stat-num { font-size:28px; font-weight:bold; color:#006233; }
-.stat-label { font-size:12px; color:#999; margin-top:4px; }
-
-/* القائمة */
-.menu-grid {
-  display:grid; grid-template-columns:1fr 1fr;
-  gap:12px; padding:0 15px 15px;
-}
-.menu-card {
-  background:white; border-radius:12px; padding:20px 15px;
-  text-align:center; cursor:pointer;
-  box-shadow:0 2px 8px rgba(0,0,0,0.1);
-  transition:transform 0.2s;
-}
-.menu-card:active { transform:scale(0.95); }
-.menu-icon { font-size:32px; margin-bottom:8px; }
-.menu-title { font-size:13px; font-weight:bold; color:#333; }
-
-/* الصفحات الداخلية */
-.inner-page {
-  display:none; position:fixed; top:0; left:0;
-  width:100%; height:100%; background:#f5f5f5;
-  z-index:200; overflow-y:auto;
-}
-.inner-header {
-  background:linear-gradient(135deg,#006233,#00a550);
-  color:white; padding:15px;
-  display:flex; align-items:center; gap:10px;
-  position:sticky; top:0;
-}
-.back-btn { font-size:24px; cursor:pointer; }
-
-/* بطاقات الإدارة */
-.item-card {
-  background:white; margin:10px 15px;
-  border-radius:12px; padding:15px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.08);
-}
-.item-title { font-weight:bold; font-size:15px; color:#333; }
-.item-sub { font-size:12px; color:#999; margin-top:4px; }
-.item-actions { display:flex; gap:8px; margin-top:12px; }
-.btn-delete { padding:7px 15px; background:#e74c3c; color:white; border:none; border-radius:8px; cursor:pointer; font-size:12px; }
-.btn-move { padding:7px 15px; background:#3498db; color:white; border:none; border-radius:8px; cursor:pointer; font-size:12px; }
-.btn-star { padding:7px 15px; background:#f39c12; color:white; border:none; border-radius:8px; cursor:pointer; font-size:12px; }
-.btn-block { padding:7px 15px; background:#e67e22; color:white; border:none; border-radius:8px; cursor:pointer; font-size:12px; }
-
-/* إضافة قسم */
-.add-section-form {
-  background:white; margin:15px;
-  border-radius:12px; padding:20px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.08);
-}
-.form-input {
-  width:100%; padding:12px; border:2px solid #e0e0e0;
-  border-radius:10px; font-size:14px; outline:none; margin-bottom:12px;
-}
-.form-input:focus { border-color:#006233; }
-.btn-green {
-  width:100%; padding:13px; background:#006233;
-  color:white; border:none; border-radius:10px;
-  font-size:15px; font-weight:bold; cursor:pointer;
-}
-
-/* زر الصيانة */
-.maintenance-btn {
-  width:calc(100% - 30px); margin:15px;
-  padding:15px; border:none; border-radius:12px;
-  font-size:16px; font-weight:bold; cursor:pointer;
-}
-.btn-red { background:#e74c3c; color:white; }
-.btn-green-full { background:#006233; color:white; }
-
-/* تغيير كلمة السر */
-.settings-card {
-  background:white; margin:10px 15px;
-  border-radius:12px; padding:20px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.08);
-}
-.settings-title { font-weight:bold; font-size:15px; margin-bottom:15px; color:#333; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#f5f5f5;color:#333}
+/* شاشة التسجيل */
+.auth-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:999;align-items:center;justify-content:center}
+.auth-overlay.show{display:flex}
+.auth-box{background:white;border-radius:20px;padding:30px 25px;width:90%;max-width:400px;text-align:center}
+.auth-logo{font-size:40px;margin-bottom:5px}
+.auth-title{font-size:22px;font-weight:bold;color:#006233;margin-bottom:3px}
+.auth-sub{font-size:12px;color:#999;margin-bottom:20px}
+.auth-tabs{display:flex;margin-bottom:20px;border-radius:10px;overflow:hidden;border:2px solid #006233}
+.auth-tab{flex:1;padding:10px;background:white;border:none;cursor:pointer;font-size:14px;color:#006233}
+.auth-tab.active{background:#006233;color:white}
+.auth-input{width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:10px;font-size:14px;outline:none;margin-bottom:12px;text-align:right}
+.auth-input:focus{border-color:#006233}
+.auth-btn{width:100%;padding:13px;background:#006233;color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:10px}
+.auth-error{color:#e74c3c;font-size:12px;margin-top:5px;display:none}
+.auth-close{position:absolute;top:15px;left:15px;font-size:24px;cursor:pointer;color:white}
+/* الهيدر */
+.header{background:linear-gradient(135deg,#006233,#00a550);color:white;padding:12px 15px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header-logo{font-size:18px;font-weight:bold;font-family:Georgia,serif}
+.header-icons{display:flex;gap:12px;align-items:center}
+.header-icon{font-size:22px;cursor:pointer;position:relative}
+.header-login-btn{background:rgba(255,255,255,0.2);border:none;color:white;padding:7px 14px;border-radius:20px;cursor:pointer;font-size:13px}
+.badge{position:absolute;top:-5px;right:-5px;background:#e74c3c;color:white;border-radius:50%;width:16px;height:16px;font-size:10px;display:flex;align-items:center;justify-content:center}
+/* الفئات */
+.categories{display:flex;overflow-x:auto;padding:10px;gap:8px;background:white}
+.cat-btn{padding:7px 14px;border-radius:20px;border:2px solid #006233;background:white;color:#006233;white-space:nowrap;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px}
+.cat-btn.active{background:#006233;color:white}
+.cat-img{width:20px;height:20px;border-radius:50%;object-fit:cover}
+/* البطاقات */
+.section-title{padding:12px 15px;font-size:15px;font-weight:bold;color:#333}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 10px 10px}
+.card{background:white;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);cursor:pointer}
+.card-img-wrap{width:100%;height:110px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.card-img-wrap img{width:100%;height:100%;object-fit:cover}
+.card-emoji{font-size:50px}
+.card-info{padding:8px}
+.card-title{font-size:13px;font-weight:bold;color:#333}
+.card-price{font-size:12px;color:#006233;margin-top:3px;font-weight:bold}
+.card-location{font-size:11px;color:#999;margin-top:2px}
+.card-stats{display:flex;gap:8px;margin-top:4px;font-size:11px;color:#999}
+.card-pinned{background:#fff3cd;border:1px solid #ffc107}
+/* الشريط السفلي */
+.bottom-nav{position:fixed;bottom:0;width:100%;background:white;display:flex;justify-content:space-around;padding:8px 0;box-shadow:0 -2px 10px rgba(0,0,0,0.1);z-index:100}
+.nav-item{display:flex;flex-direction:column;align-items:center;font-size:10px;color:#999;cursor:pointer;position:relative}
+.nav-item.active{color:#006233}
+.nav-icon{font-size:22px}
+/* الصفحات */
+.page{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#f5f5f5;z-index:200;overflow-y:auto}
+.page-header{background:linear-gradient(135deg,#006233,#00a550);color:white;padding:13px 15px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
+.back-btn{font-size:24px;cursor:pointer}
+.page-title{font-size:17px;font-weight:bold}
+/* صفحة المنتج */
+.product-img-wrap{width:100%;height:220px;background:#e0e0e0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.product-img-wrap img{width:100%;height:100%;object-fit:cover}
+.big-emoji{font-size:90px}
+.info-card{background:white;margin:10px;border-radius:12px;padding:15px;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+.info-label{font-weight:bold;margin-bottom:8px;font-size:14px}
+.btn-row{display:flex;gap:10px;margin:10px}
+.btn-green{flex:1;padding:13px;background:#006233;color:white;border:none;border-radius:12px;font-size:15px;cursor:pointer}
+.btn-msg{flex:1;padding:13px;background:#00a550;color:white;border:none;border-radius:12px;font-size:15px;cursor:pointer}
+/* التعليقات */
+.comment{display:flex;gap:10px;margin-bottom:12px}
+.comment-avatar{width:35px;height:35px;border-radius:50%;background:#006233;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden}
+.comment-avatar img{width:100%;height:100%;object-fit:cover}
+.comment-body{background:#f5f5f5;border-radius:10px;padding:8px 12px;flex:1}
+.comment-name{font-weight:bold;font-size:12px;color:#006233}
+.comment-text{font-size:13px;color:#333;margin-top:3px}
+.comment-input-row{display:flex;gap:8px;margin-top:10px}
+.comment-input{flex:1;padding:10px;border:2px solid #e0e0e0;border-radius:20px;font-size:13px;outline:none}
+.comment-input:focus{border-color:#006233}
+.send-btn{width:40px;height:40px;background:#006233;border:none;border-radius:50%;color:white;font-size:18px;cursor:pointer}
+/* الإعجابات */
+.like-row{display:flex;align-items:center;gap:15px;padding:10px 0}
+.like-btn{background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;font-size:14px}
+.like-btn.liked{color:#e74c3c}
+.views-count{color:#999;font-size:13px}
+/* الإضافة */
+.form-group{margin-bottom:15px}
+.form-label{font-weight:bold;color:#333;display:block;margin-bottom:6px;font-size:14px}
+.form-input{width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:10px;font-size:14px;outline:none}
+.form-input:focus{border-color:#006233}
+.img-upload{width:100%;height:140px;border:2px dashed #006233;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#f9fff9;flex-direction:column;gap:8px}
+.img-preview{width:100%;height:140px;border-radius:12px;object-fit:cover}
+/* الحساب */
+.profile-header{background:linear-gradient(135deg,#006233,#00a550);padding:30px 20px;text-align:center}
+.profile-avatar{width:90px;height:90px;border-radius:50%;background:white;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:40px;overflow:hidden;border:3px solid white;cursor:pointer}
+.profile-avatar img{width:100%;height:100%;object-fit:cover}
+.profile-name{color:white;font-size:20px;font-weight:bold}
+.profile-stats{display:flex;justify-content:space-around;background:white;padding:15px}
+.p-stat{text-align:center}
+.p-stat-num{font-size:20px;font-weight:bold;color:#006233}
+.p-stat-label{font-size:11px;color:#999}
+/* الإشعارات */
+.notif-item{background:white;padding:12px 15px;border-bottom:1px solid #f0f0f0;display:flex;gap:12px;align-items:center}
+.notif-item.unread{background:#f0fff4}
+.notif-text{font-size:13px;color:#333;flex:1}
+.notif-time{font-size:11px;color:#999}
+/* الرسائل */
+.chat-item{background:white;padding:12px 15px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #f0f0f0;cursor:pointer}
+.chat-avatar{width:50px;height:50px;border-radius:50%;background:#006233;display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;flex-shrink:0}
+.chat-avatar img{width:100%;height:100%;object-fit:cover}
+.chat-name{font-weight:bold;font-size:14px}
+.chat-last{font-size:12px;color:#999;margin-top:3px}
+.chat-messages{padding:15px;padding-bottom:80px}
+.msg-out{display:flex;justify-content:flex-end;margin-bottom:8px}
+.msg-in{display:flex;justify-content:flex-start;margin-bottom:8px}
+.msg-bubble-out{background:#006233;color:white;padding:10px 14px;border-radius:18px 18px 0 18px;max-width:75%;font-size:14px}
+.msg-bubble-in{background:white;color:#333;padding:10px 14px;border-radius:18px 18px 18px 0;max-width:75%;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+.msg-input-row{position:fixed;bottom:0;width:100%;background:white;padding:10px;display:flex;gap:8px;box-shadow:0 -2px 10px rgba(0,0,0,0.1)}
+.msg-input{flex:1;padding:10px 15px;border:2px solid #e0e0e0;border-radius:25px;font-size:14px;outline:none}
+.msg-input:focus{border-color:#006233}
+.msg-send-btn{width:45px;height:45px;background:#006233;border:none;border-radius:50%;color:white;font-size:20px;cursor:pointer}
+/* الأصدقاء */
+.friend-item{background:white;padding:12px 15px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #f0f0f0}
+.friend-btns{display:flex;gap:8px}
+.btn-accept{padding:7px 14px;background:#006233;color:white;border:none;border-radius:8px;cursor:pointer;font-size:12px}
+.btn-reject{padding:7px 14px;background:#e74c3c;color:white;border:none;border-radius:8px;cursor:pointer;font-size:12px}
+.content{padding-bottom:70px}
+.search-bar{margin:10px;padding:10px 15px;border-radius:20px;border:2px solid #e0e0e0;width:calc(100% - 20px);font-size:14px;outline:none}
+.search-bar:focus{border-color:#006233}
+.empty-msg{text-align:center;padding:40px;color:#999;grid-column:span 2}
 </style>
 </head>
 <body>
 
-<!-- شاشة تسجيل الدخول -->
-<div id="login-screen">
-  <div class="login-box">
-    <div class="login-logo">🛡️</div>
-    <div class="login-title">Bladi Market</div>
-    <div class="login-sub">لوحة تحكم الأدمين</div>
-    <input class="login-input" id="password-input" type="password" placeholder="كلمة السر...">
-    <button class="login-btn" onclick="checkLogin()">🔐 دخول</button>
-    <div class="login-error" id="login-error">❌ كلمة السر خاطئة!</div>
-    <div class="forgot-link" onclick="forgotPassword()">نسيت كلمة السر؟</div>
+<!-- شاشة التسجيل (تظهر عند الحاجة فقط) -->
+<div class="auth-overlay" id="auth-overlay">
+  <div class="auth-box" style="position:relative;">
+    <span class="auth-close" onclick="closeAuth()">✕</span>
+    <div class="auth-logo">🇩🇿</div>
+    <div class="auth-title">Bladi Market</div>
+    <div class="auth-sub">سجل للاستمتاع بكل الميزات</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">دخول</button>
+      <button class="auth-tab" onclick="switchTab('register')">حساب جديد</button>
+    </div>
+    <div id="login-form">
+      <input class="auth-input" id="login-email" type="email" placeholder="البريد الإلكتروني">
+      <input class="auth-input" id="login-pass" type="password" placeholder="كلمة السر">
+      <button class="auth-btn" onclick="loginUser()">🔐 دخول</button>
+    </div>
+    <div id="register-form" style="display:none;">
+      <input class="auth-input" id="reg-name" type="text" placeholder="الاسم الكامل">
+      <input class="auth-input" id="reg-email" type="email" placeholder="البريد الإلكتروني">
+      <input class="auth-input" id="reg-pass" type="password" placeholder="كلمة السر">
+      <input class="auth-input" id="reg-location" type="text" placeholder="مدينتك">
+      <button class="auth-btn" onclick="registerUser()">✅ إنشاء حساب</button>
+    </div>
+    <div class="auth-error" id="auth-error"></div>
   </div>
 </div>
 
-<!-- لوحة التحكم -->
-<div id="admin-panel">
+<!-- التطبيق الرئيسي -->
+<div id="main-app">
 
-  <!-- هيدر -->
-  <div class="admin-header">
-    <h1>🛡️ لوحة التحكم</h1>
-    <button class="logout-btn" onclick="logout()">خروج 🚪</button>
-  </div>
-
-  <!-- شريط الصيانة -->
-  <div class="maintenance-bar" id="maintenance-bar">
-    <span>⚠️ وضع الصيانة مفعّل</span>
-    <button onclick="toggleMaintenance()" style="background:white;color:#e74c3c;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;">إيقاف</button>
-  </div>
-
-  <!-- الإحصائيات -->
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-icon">👥</div>
-      <div class="stat-num" id="stat-users">0</div>
-      <div class="stat-label">المستخدمون</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">📢</div>
-      <div class="stat-num" id="stat-ads">4</div>
-      <div class="stat-label">الإعلانات</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">📂</div>
-      <div class="stat-num" id="stat-cats">5</div>
-      <div class="stat-label">الأقسام</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">👁️</div>
-      <div class="stat-num">128</div>
-      <div class="stat-label">الزيارات اليوم</div>
+  <!-- الهيدر -->
+  <div class="header">
+    <div class="header-logo">🇩🇿 Bladi</div>
+    <div class="header-icons">
+      <div class="header-icon" id="notif-icon" onclick="requireAuth('notif-page')" style="display:none;">
+        🔔<span class="badge" id="notif-badge" style="display:none;">0</span>
+      </div>
+      <div class="header-icon" id="friends-icon" onclick="requireAuth('friends-page')" style="display:none;">
+        👥<span class="badge" id="friends-badge" style="display:none;">0</span>
+      </div>
+      <button class="header-login-btn" id="login-btn" onclick="showAuth()">دخول 👤</button>
+      <div class="header-icon" id="profile-icon" onclick="openPage('profile-page')" style="display:none;">👤</div>
     </div>
   </div>
 
-  <!-- القائمة -->
-  <div class="menu-grid">
-    <div class="menu-card" onclick="openPage('ads-page')">
-      <div class="menu-icon">📢</div>
-      <div class="menu-title">إدارة الإعلانات</div>
+  <!-- البحث -->
+  <input class="search-bar" type="text" placeholder="🔍 ابحث عن منتج أو خدمة..." oninput="loadProducts(this.value)">
+
+  <!-- الفئات -->
+  <div class="categories" id="categories-bar">
+    <button class="cat-btn active" onclick="filterByCategory('الكل',this)">🏠 الكل</button>
+  </div>
+
+  <div class="content">
+    <div class="section-title">🔥 أحدث الإعلانات</div>
+    <div class="cards" id="cards-container"></div>
+  </div>
+
+  <!-- الشريط السفلي -->
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="goHome()">
+      <span class="nav-icon">🏠</span><span>الرئيسية</span>
     </div>
-    <div class="menu-card" onclick="openPage('users-page')">
-      <div class="menu-icon">👥</div>
-      <div class="menu-title">إدارة المستخدمين</div>
+    <div class="nav-item" onclick="requireAuth('messages-page')">
+      <span class="nav-icon">💬</span><span>رسائل</span>
     </div>
-    <div class="menu-card" onclick="openPage('cats-page')">
-      <div class="menu-icon">📂</div>
-      <div class="menu-title">إدارة الأقسام</div>
+    <div class="nav-item" onclick="checkAddAd()">
+      <span class="nav-icon">➕</span><span>أضف</span>
     </div>
-    <div class="menu-card" onclick="openPage('maintenance-page')">
-      <div class="menu-icon">🔧</div>
-      <div class="menu-title">وضع الصيانة</div>
+    <div class="nav-item" onclick="focusSearch()">
+      <span class="nav-icon">🔍</span><span>بحث</span>
     </div>
-    <div class="menu-card" onclick="openPage('settings-page')">
-      <div class="menu-icon">⚙️</div>
-      <div class="menu-title">الإعدادات</div>
-    </div>
-    <div class="menu-card" onclick="openPage('reports-page')">
-      <div class="menu-icon">📊</div>
-      <div class="menu-title">التقارير</div>
-    </div>
-  </div>
-
-</div>
-
-<!-- صفحة الإعلانات -->
-<div class="inner-page" id="ads-page">
-  <div class="inner-header">
-    <span class="back-btn" onclick="closePage('ads-page')">←</span>
-    <span style="font-size:17px;font-weight:bold;">📢 إدارة الإعلانات</span>
-  </div>
-  <div id="ads-list"></div>
-</div>
-
-<!-- صفحة المستخدمين -->
-<div class="inner-page" id="users-page">
-  <div class="inner-header">
-    <span class="back-btn" onclick="closePage('users-page')">←</span>
-    <span style="font-size:17px;font-weight:bold;">👥 إدارة المستخدمين</span>
-  </div>
-  <div id="users-list"></div>
-</div>
-
-<!-- صفحة الأقسام -->
-<div class="inner-page" id="cats-page">
-  <div class="inner-header">
-    <span class="back-btn" onclick="closePage('cats-page')">←</span>
-    <span style="font-size:17px;font-weight:bold;">📂 إدارة الأقسام</span>
-  </div>
-
-  <div class="add-section-form">
-    <div style="font-weight:bold;margin-bottom:15px;font-size:15px;">➕ إضافة قسم جديد</div>
-    <input class="form-input" id="new-cat-name" type="text" placeholder="اسم القسم...">
-    <input class="form-input" id="new-cat-emoji" type="text" placeholder="أيقونة القسم (مثال: 🍕)">
-    <button class="btn-green" onclick="addCategory()">✅ إضافة القسم</button>
-  </div>
-
-  <div id="cats-list"></div>
-</div>
-
-<!-- صفحة الصيانة -->
-<div class="inner-page" id="maintenance-page">
-  <div class="inner-header">
-    <span class="back-btn" onclick="closePage('maintenance-page')">←</span>
-    <span style="font-size:17px;font-weight:bold;">🔧 وضع الصيانة</span>
-  </div>
-
-  <div class="item-card" style="margin:15px;">
-    <div class="item-title">⚠️ تفعيل وضع الصيانة</div>
-    <div class="item-sub" style="margin-bottom:15px;">عند التفعيل يرى المستخدمون رسالة صيانة بدل التطبيق</div>
-    <button id="maintenance-toggle-btn" class="maintenance-btn btn-red" onclick="toggleMaintenance()">
-      🔴 تفعيل وضع الصيانة
-    </button>
-  </div>
-
-  <div class="add-section-form">
-    <div style="font-weight:bold;margin-bottom:10px;">✏️ رسالة الصيانة</div>
-    <textarea class="form-input" id="maintenance-msg" style="height:80px;resize:none;" placeholder="مثال: نحن في تحديث، نعود قريباً...">نحن في تحديث للتطبيق، نعود قريباً! 🚀</textarea>
-    <button class="btn-green" onclick="saveMaintMsg()">💾 حفظ الرسالة</button>
-  </div>
-</div>
-
-<!-- صفحة الإعدادات -->
-<div class="inner-page" id="settings-page">
-  <div class="inner-header">
-    <span class="back-btn" onclick="closePage('settings-page')">←</span>
-    <span style="font-size:17px;font-weight:bold;">⚙️ الإعدادات</span>
-  </div>
-
-  <div class="settings-card">
-    <div class="settings-title">🔑 تغيير كلمة السر</div>
-    <input class="form-input" id="old-pass" type="password" placeholder="كلمة السر الحالية...">
-    <input class="form-input" id="new-pass" type="password" placeholder="كلمة السر الجديدة...">
-    <input class="form-input" id="confirm-pass" type="password" placeholder="تأكيد كلمة السر الجديدة...">
-    <button class="btn-green" onclick="changePassword()">🔐 تغيير كلمة السر</button>
-  </div>
-
-  <div class="settings-card">
-    <div class="settings-title">📧 إيميل الاسترداد</div>
-    <input class="form-input" id="recovery-email" type="email" value="kamelkime@gmail.com">
-    <button class="btn-green" onclick="saveEmail()">💾 حفظ الإيميل</button>
-  </div>
-</div>
-
-<!-- صفحة التقارير -->
-<div class="inner-page" id="reports-page">
-  <div class="inner-header">
-    <span class="back-btn" onclick="closePage('reports-page')">←</span>
-    <span style="font-size:17px;font-weight:bold;">📊 التقارير</span>
-  </div>
-
-  <div class="stats-grid" style="padding:15px;">
-    <div class="stat-card">
-      <div class="stat-icon">📈</div>
-      <div class="stat-num">128</div>
-      <div class="stat-label">زيارات اليوم</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">📅</div>
-      <div class="stat-num">854</div>
-      <div class="stat-label">زيارات الأسبوع</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">🏆</div>
-      <div class="stat-num">أكل</div>
-      <div class="stat-label">أكثر قسم نشاطاً</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">⭐</div>
-      <div class="stat-num">4.8</div>
-      <div class="stat-label">متوسط التقييم</div>
+    <div class="nav-item" onclick="requireAuth('profile-page')">
+      <span class="nav-icon">👤</span><span>حسابي</span>
     </div>
   </div>
 </div>
 
+<!-- صفحة تفاصيل المنتج -->
+<div class="page" id="product-page">
+  <div class="page-header">
+    <span class="back-btn" onclick="closePage('product-page')">←</span>
+    <span class="page-title">تفاصيل الإعلان</span>
+    <span style="margin-right:auto;font-size:20px;cursor:pointer;" id="pin-btn"></span>
+  </div>
+  <div class="product-img-wrap" id="product-img-wrap"></div>
+  <div class="info-card">
+    <div id="p-title" style="font-size:20px;font-weight:bold;"></div>
+    <div id="p-price" style="font-size:18px;color:#006233;margin-top:6px;font-weight:bold;"></div>
+    <div id="p-location" style="font-size:13px;color:#999;margin-top:4px;"></div>
+    <div id="p-category" style="font-size:12px;color:#00a550;margin-top:4px;"></div>
+  </div>
+  <div class="info-card">
+    <div class="like-row">
+      <button class="like-btn" id="like-btn" onclick="toggleLike()">🤍 <span id="like-count">0</span> إعجاب</button>
+      <span class="views-count">👁️ <span id="views-count">0</span> مشاهدة</span>
+    </div>
+  </div>
+  <div class="info-card">
+    <div class="info-label">📋 وصف المنتج</div>
+    <div id="p-desc" style="color:#666;font-size:14px;line-height:1.7;"></div>
+  </div>
+  <div class="info-card">
+    <div class="info-label">👤 البائع</div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="comment-avatar" id="seller-avatar"></div>
+      <div>
+        <div id="p-seller" style="font-weight:bold;font-size:15px;"></div>
+        <div id="p-seller-loc" style="font-size:12px;color:#999;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="btn-row" id="contact-btns"></div>
+  <div class="info-card">
+    <div class="info-label">💬 التعليقات (<span id="comments-count">0</span>)</div>
+    <div id="comments-list"></div>
+    <div class="comment-input-row" id="comment-input-row" style="display:none;">
+      <input class="comment-input" id="comment-input" placeholder="اكتب تعليقاً...">
+      <button class="send-btn" onclick="addComment()">➤</button>
+    </div>
+    <div id="comment-login-msg" style="display:none;text-align:center;padding:10px;">
+      <button class="auth-btn" style="width:auto;padding:8px 20px;font-size:13px;" onclick="showAuth()">سجل للتعليق</button>
+    </div>
+  </div>
+</div>
+
+<!-- صفحة إضافة إعلان -->
+<div class="page" id="add-page">
+  <div class="page-header">
+    <span class="back-btn" onclick="closePage('add-page')">←</span>
+    <span class="page-title">➕ إضافة إعلان</span>
+  </div>
+  <div style="padding:15px;padding-bottom:30px;">
+    <div class="form-group">
+      <label class="form-label">🖼️ صورة المنتج</label>
+      <div class="img-upload" id="img-upload-area" onclick="document.getElementById('img-input').click()">
+        <span style="font-size:35px;">📷</span>
+        <span style="color:#999;font-size:13px;">اضغط لرفع صورة</span>
+      </div>
+      <input type="file" id="img-input" accept="image/*" style="display:none;" onchange="previewImage(this)">
+    </div>
+    <div class="form-group">
+      <label class="form-label">📦 اسم المنتج</label>
+      <input class="form-input" id="add-title" type="text" placeholder="مثال: عسل طبيعي...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">💰 السعر (دج)</label>
+      <input class="form-input" id="add-price" type="number" placeholder="مثال: 1500">
+    </div>
+    <div class="form-group">
+      <label class="form-label">📂 الفئة</label>
+      <select class="form-input" id="add-category"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">📍 الموقع</label>
+      <input class="form-input" id="add-location" type="text" placeholder="مثال: وهران، قسنطينة...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">📄 وصف المنتج</label>
+      <textarea class="form-input" id="add-desc" placeholder="اكتب وصفاً مفصلاً..." style="height:100px;resize:none;"></textarea>
+    </div>
+    <button class="btn-green" style="width:100%;" onclick="publishAd()">🚀 نشر الإعلان</button>
+  </div>
+</div>
+
+<!-- صفحة الحساب -->
+<div class="page" id="profile-page">
+  <div class="page-header">
+    <span class="back-btn" onclick="closePage('profile-page')">←</span>
+    <span class="page-title">👤 حسابي</span>
+    <span style="margin-right:auto;cursor:pointer;font-size:20px;" onclick="logout()">🚪</span>
+  </div>
+  <div class="profile-header">
+    <div class="profile-avatar" id="profile-avatar-img" onclick="changeAvatar()">👤</div>
+    <div class="profile-name" id="profile-name-display">مستخدم</div>
+    <div style="color:rgba(255,255,255,0.8);font-size:13px;margin-top:4px;" id="profile-location-display"></div>
+  </div>
+  <div class="profile-stats">
+    <div class="p-stat"><div class="p-stat-num" id="my-ads-count">0</div><div class="p-stat-label">إعلاناتي</div></div>
+    <div class="p-stat"><div class="p-stat-num" id="my-friends-count">0</div><div class="p-stat-label">الأصدقاء</div></div>
+    <div class="p-stat"><div class="p-stat-num" id="my-likes-count">0</div><div class="p-stat-label">الإعجابات</div></div>
+  </div>
+  <div class="info-card" style="margin:10px;">
+    <div class="info-label">📢 إعلاناتي</div>
+    <div id="my-ads-list"></div>
+  </div>
+</div>
+
+<!-- صفحة الرسائل -->
+<div class="page" id="messages-page">
+  <div class="page-header">
+    <span class="back-btn" onclick="closePage('messages-page')">←</span>
+    <span class="page-title">💬 الرسائل</span>
+  </div>
+  <div id="chats-list"></div>
+</div>
+
+<!-- صفحة المحادثة -->
+<div class="page" id="chat-page">
+  <div class="page-header">
+    <span class="back-btn" onclick="closePage('chat-page')">←</span>
+    <span class="page-title" id="chat-title"></span>
+  </div>
+  <div class="chat-messages" id="chat-messages"></div>
+  <div class="msg-input-row">
+    <input class="msg-input" id="msg-input" placeholder="اكتب رسالة...">
+    <button class="msg-send-btn" onclick="sendMsg()">➤</button>
+  </div>
+</div>
+
+<!-- صفحة الإشعارات -->
+<div class="page" id="notif-page">
+  <div class="page-header">
+    <span class="back-btn" onclick="closePage('notif-page')">←</span>
+    <span class="page-title">🔔 الإشعارات</span>
+  </div>
+  <div id="notif-list"></div>
+</div>
+
+<!-- صفحة الأصدقاء -->
+<div class="page" id="friends-page">
+  <div class="page-header">
+    <span class="back-btn" onclick="closePage('friends-page')">←</span>
+    <span class="page-title">👥 طلبات الصداقة</span>
+  </div>
+  <div id="friends-list"></div>
+</div>
+
+<!-- شاشة الصيانة -->
+<div id="maintenance-screen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#006233,#00a550);z-index:9999;align-items:center;justify-content:center;text-align:center;">
+  <div style="color:white;padding:30px;">
+    <div style="font-size:80px;">🔧</div>
+    <div style="font-size:24px;font-weight:bold;margin:15px 0;">قيد الصيانة</div>
+    <div id="maintenance-msg-display" style="font-size:15px;opacity:0.9;">نحن في تحديث للتطبيق، نعود قريباً! 🚀</div>
+  </div>
+</div>
 <script>
-let adminPassword = 'Guelma%2009';
-let maintenanceMode = false;
+// ===== البيانات =====
+let currentUser = null;
+let currentCategory = 'الكل';
+let currentProductIndex = -1;
+let currentChatUser = null;
+let selectedImageData = null;
+let pendingAction = null;
 
-const categories = [
-  { name:'أكل بيتي', emoji:'🍔' },
-  { name:'منتجات طبيعية', emoji:'🍯' },
-  { name:'عقارات', emoji:'🔑' },
-  { name:'موضة', emoji:'👗' },
-  { name:'وظائف', emoji:'💼' }
-];
+const users = JSON.parse(localStorage.getItem('bm_users')||'[]');
+const products = JSON.parse(localStorage.getItem('bm_products')||JSON.stringify([
+  {id:1,title:'كسكس بيتي',price:'500',location:'قالمة',desc:'كسكس بيتي طازج مطبوخ بطريقة تقليدية',category:'أكل بيتي',image:'',emoji:'🍲',sellerId:0,sellerName:'أم محمد',sellerLocation:'قالمة',likes:0,likedBy:[],views:0,comments:[],pinned:false},
+  {id:2,title:'عسل طبيعي',price:'2000',location:'قالمة',desc:'عسل طبيعي 100% من مناطق جبلية',category:'منتجات طبيعية',image:'',emoji:'🍯',sellerId:0,sellerName:'الحاج علي',sellerLocation:'قالمة',likes:0,likedBy:[],views:0,comments:[],pinned:false},
+  {id:3,title:'شقة للإيجار',price:'15000',location:'قالمة',desc:'شقة F3 مفروشة بالكامل متاحة فوراً',category:'عقارات',image:'',emoji:'🏠',sellerId:0,sellerName:'أبو يوسف',sellerLocation:'قالمة',likes:0,likedBy:[],views:0,comments:[],pinned:false},
+  {id:4,title:'ملابس نسائية',price:'1200',location:'قالمة',desc:'ملابس نسائية عصرية بجودة عالية',category:'موضة',image:'',emoji:'👗',sellerId:0,sellerName:'بوتيك سارة',sellerLocation:'قالمة',likes:0,likedBy:[],views:0,comments:[],pinned:false}
+]));
+const messages = JSON.parse(localStorage.getItem('bm_messages')||'{}');
+const notifications = JSON.parse(localStorage.getItem('bm_notifs')||'[]');
+const friendRequests = JSON.parse(localStorage.getItem('bm_friends')||'[]');
+const categories = JSON.parse(localStorage.getItem('bm_categories')||JSON.stringify([
+  {name:'أكل بيتي',emoji:'🍔',img:''},
+  {name:'منتجات طبيعية',emoji:'🍯',img:''},
+  {name:'عقارات',emoji:'🔑',img:''},
+  {name:'موضة',emoji:'👗',img:''},
+  {name:'وظائف',emoji:'💼',img:''}
+]));
 
-const ads = [
-  { title:'كسكس بيتي', price:'500 دج', cat:'أكل بيتي', seller:'أم محمد' },
-  { title:'عسل طبيعي', price:'2000 دج', cat:'منتجات طبيعية', seller:'الحاج علي' },
-  { title:'شقة للإيجار', price:'15,000 دج', cat:'عقارات', seller:'أبو يوسف' },
-  { title:'ملابس نسائية', price:'1200 دج', cat:'موضة', seller:'بوتيك سارة' }
-];
+function saveData(){
+  localStorage.setItem('bm_users',JSON.stringify(users));
+  localStorage.setItem('bm_products',JSON.stringify(products));
+  localStorage.setItem('bm_messages',JSON.stringify(messages));
+  localStorage.setItem('bm_notifs',JSON.stringify(notifications));
+  localStorage.setItem('bm_friends',JSON.stringify(friendRequests));
+  localStorage.setItem('bm_categories',JSON.stringify(categories));
+}
 
-const users = [
-  { name:'أم محمد', phone:'0555000000', ads:1, status:'نشط' },
-  { name:'الحاج علي', phone:'0555000001', ads:1, status:'نشط' },
-  { name:'أبو يوسف', phone:'0555000002', ads:1, status:'نشط' },
-  { name:'بوتيك سارة', phone:'0555000003', ads:1, status:'نشط' }
-];
-
-// تسجيل الدخول
-function checkLogin() {
-  const input = document.getElementById('password-input').value;
-  if (input === adminPassword) {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('admin-panel').style.display = 'block';
-    loadData();
+// ===== التسجيل =====
+function showAuth(){
+  document.getElementById('auth-overlay').classList.add('show');
+}
+function closeAuth(){
+  document.getElementById('auth-overlay').classList.remove('show');
+  pendingAction=null;
+}
+function requireAuth(action){
+  if(currentUser){
+    if(action==='notif-page'||action==='friends-page'||action==='messages-page'||action==='profile-page'){
+      openPage(action);
+    }
   } else {
-    document.getElementById('login-error').style.display = 'block';
+    pendingAction=action;
+    showAuth();
+  }
+}
+function switchTab(tab){
+  document.querySelectorAll('.auth-tab').forEach((t,i)=>{
+    t.classList.toggle('active',(tab==='login'&&i===0)||(tab==='register'&&i===1));
+  });
+  document.getElementById('login-form').style.display=tab==='login'?'block':'none';
+  document.getElementById('register-form').style.display=tab==='register'?'block':'none';
+}
+function registerUser(){
+  const name=document.getElementById('reg-name').value.trim();
+  const email=document.getElementById('reg-email').value.trim();
+  const pass=document.getElementById('reg-pass').value.trim();
+  const location=document.getElementById('reg-location').value.trim();
+  if(!name||!email||!pass){showAuthError('يرجى ملء جميع الحقول!');return;}
+  if(users.find(u=>u.email===email)){showAuthError('البريد مسجل مسبقاً!');return;}
+  const user={id:Date.now(),name,email,pass,location,avatar:'',friends:[],likes:0};
+  users.push(user);
+  currentUser=user;
+  saveData();
+  afterLogin();
+}
+function loginUser(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-pass').value.trim();
+  const user=users.find(u=>u.email===email&&u.pass===pass);
+  if(!user){showAuthError('البريد أو كلمة السر خاطئة!');return;}
+  currentUser=user;
+  localStorage.setItem('bm_current_user',JSON.stringify(user));
+  afterLogin();
+}
+function afterLogin(){
+  closeAuth();
+  updateHeaderState();
+  updateProfileDisplay();
+  checkNotifications();
+  loadProducts();
+  if(pendingAction){
+    openPage(pendingAction);
+    pendingAction=null;
+  }
+}
+function logout(){
+  currentUser=null;
+  localStorage.removeItem('bm_current_user');
+  updateHeaderState();
+  closePage('profile-page');
+  loadProducts();
+}
+function showAuthError(msg){
+  const el=document.getElementById('auth-error');
+  el.innerText='❌ '+msg;
+  el.style.display='block';
+}
+function updateHeaderState(){
+  const loggedIn=!!currentUser;
+  document.getElementById('login-btn').style.display=loggedIn?'none':'block';
+  document.getElementById('profile-icon').style.display=loggedIn?'block':'none';
+  document.getElementById('notif-icon').style.display=loggedIn?'block':'none';
+  document.getElementById('friends-icon').style.display=loggedIn?'block':'none';
+}
+
+// ===== الفئات =====
+function loadCategories(){
+  const bar=document.getElementById('categories-bar');
+  bar.innerHTML='<button class="cat-btn active" onclick="filterByCategory(\'الكل\',this)">🏠 الكل</button>';
+  categories.forEach(c=>{
+    const btn=document.createElement('button');
+    btn.className='cat-btn';
+    btn.onclick=function(){filterByCategory(c.name,this);};
+    btn.innerHTML=c.img?`<img class="cat-img" src="${c.img}"> ${c.name}`:`${c.emoji} ${c.name}`;
+    bar.appendChild(btn);
+  });
+  const select=document.getElementById('add-category');
+  if(select) select.innerHTML=categories.map(c=>`<option value="${c.name}">${c.emoji} ${c.name}</option>`).join('');
+}
+function filterByCategory(cat,btn){
+  currentCategory=cat;
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  loadProducts();
+}
+
+// ===== المنتجات =====
+function loadProducts(search=''){
+  const container=document.getElementById('cards-container');
+  let filtered=products.filter(p=>{
+    const matchSearch=!search||p.title.includes(search)||p.desc.includes(search);
+    const matchCat=currentCategory==='الكل'||p.category===currentCategory;
+    return matchSearch&&matchCat;
+  });
+  filtered.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));
+  if(filtered.length===0){
+    container.innerHTML='<div class="empty-msg">😕 لا توجد إعلانات</div>';
+    return;
+  }
+  container.innerHTML='';
+  filtered.forEach(p=>{
+    const index=products.indexOf(p);
+    const card=document.createElement('div');
+    card.className='card'+(p.pinned?' card-pinned':'');
+    card.onclick=()=>openProduct(index);
+    const imgHTML=p.image?`<img src="${p.image}">`:`<span class="card-emoji">${p.emoji||'📦'}</span>`;
+    card.innerHTML=`
+      <div class="card-img-wrap">${imgHTML}</div>
+      <div class="card-info">
+        <div class="card-title">${p.pinned?'📌 ':''}${p.title}</div>
+        <div class="card-price">${p.price} دج</div>
+        <div class="card-location">📍 ${p.location}</div>
+        <div class="card-stats">
+          <span>❤️ ${p.likes||0}</span>
+          <span>👁️ ${p.views||0}</span>
+          <span>💬 ${(p.comments||[]).length}</span>
+        </div>
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+// ===== صفحة المنتج =====
+function openProduct(index){
+  currentProductIndex=index;
+  const p=products[index];
+  p.views=(p.views||0)+1;
+  saveData();
+  const wrap=document.getElementById('product-img-wrap');
+  wrap.innerHTML=p.image?`<img src="${p.image}">`:`<span class="big-emoji">${p.emoji||'📦'}</span>`;
+  document.getElementById('p-title').innerText=p.title;
+  document.getElementById('p-price').innerText=p.price+' دج';
+  document.getElementById('p-location').innerText='📍 '+p.location;
+  document.getElementById('p-category').innerText='📂 '+p.category;
+  document.getElementById('p-desc').innerText=p.desc;
+  document.getElementById('p-seller').innerText=p.sellerName;
+  document.getElementById('p-seller-loc').innerText='📍 '+(p.sellerLocation||'');
+  document.getElementById('like-count').innerText=p.likes||0;
+  document.getElementById('views-count').innerText=p.views||0;
+  const sellerAvatar=document.getElementById('seller-avatar');
+  const seller=users.find(u=>u.id===p.sellerId);
+  sellerAvatar.innerHTML=seller&&seller.avatar?`<img src="${seller.avatar}">`:'👤';
+  const likedBy=p.likedBy||[];
+  const liked=currentUser&&likedBy.includes(currentUser.id);
+  const likeBtn=document.getElementById('like-btn');
+  likeBtn.className='like-btn'+(liked?' liked':'');
+  likeBtn.innerHTML=`${liked?'❤️':'🤍'} <span id="like-count">${p.likes||0}</span> إعجاب`;
+  const isAdmin=currentUser&&currentUser.email==='kamelkime@gmail.com';
+  const pinBtn=document.getElementById('pin-btn');
+  pinBtn.innerText=isAdmin?(p.pinned?'📌':'📍'):'';
+  const contactBtns=document.getElementById('contact-btns');
+  const isOwner=currentUser&&p.sellerId===currentUser.id;
+  if(isOwner){
+    contactBtns.innerHTML=`
+      <button class="btn-green" onclick="editAd(${index})">✏️ تعديل</button>
+      <button class="btn-msg" style="background:#e74c3c;" onclick="deleteAd(${index})">🗑️ حذف</button>`;
+  } else if(currentUser){
+    contactBtns.innerHTML=`
+      <button class="btn-green" onclick="sendFriendRequest('${p.sellerId}','${p.sellerName}')">👥 صداقة</button>
+      <button class="btn-msg" onclick="openChatWith('${p.sellerId}','${p.sellerName}')">💬 مراسلة</button>`;
+  } else {
+    contactBtns.innerHTML=`<button class="btn-green" style="width:100%;" onclick="showAuth()">🔐 سجل للتواصل مع البائع</button>`;
+  }
+  const commentInputRow=document.getElementById('comment-input-row');
+  const commentLoginMsg=document.getElementById('comment-login-msg');
+  if(currentUser){
+    commentInputRow.style.display='flex';
+    commentLoginMsg.style.display='none';
+  } else {
+    commentInputRow.style.display='none';
+    commentLoginMsg.style.display='block';
+  }
+  loadComments(index);
+  document.getElementById('product-page').style.display='block';
+}
+
+// ===== الإعجابات =====
+function toggleLike(){
+  if(!currentUser){showAuth();return;}
+  const p=products[currentProductIndex];
+  p.likedBy=p.likedBy||[];
+  const idx=p.likedBy.indexOf(currentUser.id);
+  if(idx===-1){
+    p.likedBy.push(currentUser.id);
+    p.likes=(p.likes||0)+1;
+    addNotification(p.sellerId,`❤️ ${currentUser.name} أعجب بإعلانك "${p.title}"`);
+  } else {
+    p.likedBy.splice(idx,1);
+    p.likes=Math.max(0,(p.likes||1)-1);
+  }
+  saveData();
+  openProduct(currentProductIndex);
+}
+
+// ===== التثبيت =====
+function togglePin(){
+  const p=products[currentProductIndex];
+  p.pinned=!p.pinned;
+  saveData();
+  loadProducts();
+  openProduct(currentProductIndex);
+}
+
+// ===== التعليقات =====
+function loadComments(index){
+  const p=products[index];
+  const comments=p.comments||[];
+  document.getElementById('comments-count').innerText=comments.length;
+  document.getElementById('comments-list').innerHTML=comments.map(c=>`
+    <div class="comment">
+      <div class="comment-avatar">${c.avatar?`<img src="${c.avatar}">`:'👤'}</div>
+      <div class="comment-body">
+        <div class="comment-name">${c.name}</div>
+        <div class="comment-text">${c.text}</div>
+      </div>
+    </div>`).join('');
+}
+function addComment(){
+  if(!currentUser){showAuth();return;}
+  const input=document.getElementById('comment-input');
+  const text=input.value.trim();
+  if(!text)return;
+  const p=products[currentProductIndex];
+  p.comments=p.comments||[];
+  p.comments.push({name:currentUser.name,text,avatar:currentUser.avatar||''});
+  addNotification(p.sellerId,`💬 ${currentUser.name} علّق على إعلانك "${p.title}"`);
+  saveData();
+  input.value='';
+  loadComments(currentProductIndex);
+}
+
+// ===== إضافة إعلان =====
+function checkAddAd(){
+  if(!currentUser){pendingAction='add-page';showAuth();return;}
+  openPage('add-page');
+}
+function previewImage(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    selectedImageData=e.target.result;
+    document.getElementById('img-upload-area').innerHTML=`<img class="img-preview" src="${selectedImageData}">`;
+  };
+  reader.readAsDataURL(file);
+}
+function publishAd(){
+  const title=document.getElementById('add-title').value.trim();
+  const price=document.getElementById('add-price').value.trim();
+  const location=document.getElementById('add-location').value.trim();
+  const desc=document.getElementById('add-desc').value.trim();
+  const category=document.getElementById('add-category').value;
+  if(!title||!price||!location){alert('⚠️ يرجى ملء جميع الحقول!');return;}
+  const newAd={
+    id:Date.now(),title,price,location,desc,category,
+    image:selectedImageData||'',emoji:'📦',
+    sellerId:currentUser.id,sellerName:currentUser.name,
+    sellerLocation:currentUser.location||'',
+    likes:0,likedBy:[],views:0,comments:[],pinned:false,
+    date:new Date().toLocaleDateString('ar')
+  };
+  products.unshift(newAd);
+  saveData();
+  alert('✅ تم نشر إعلانك بنجاح!');
+  closePage('add-page');
+  loadProducts();
+  selectedImageData=null;
+  document.getElementById('img-upload-area').innerHTML=`<span style="font-size:35px;">📷</span><span style="color:#999;font-size:13px;">اضغط لرفع صورة</span>`;
+  document.getElementById('add-title').value='';
+  document.getElementById('add-price').value='';
+  document.getElementById('add-location').value='';
+  document.getElementById('add-desc').value='';
+}
+function deleteAd(index){
+  if(!confirm('هل تريد حذف هذا الإعلان؟'))return;
+  products.splice(index,1);
+  saveData();
+  closePage('product-page');
+  loadProducts();
+}
+function editAd(index){
+  const p=products[index];
+  document.getElementById('add-title').value=p.title;
+  document.getElementById('add-price').value=p.price;
+  document.getElementById('add-location').value=p.location;
+  document.getElementById('add-desc').value=p.desc;
+  selectedImageData=p.image;
+  if(p.image) document.getElementById('img-upload-area').innerHTML=`<img class="img-preview" src="${p.image}">`;
+  products.splice(index,1);
+  saveData();
+  closePage('product-page');
+  openPage('add-page');
+}
+
+// ===== الحساب =====
+function updateProfileDisplay(){
+  if(!currentUser)return;
+  document.getElementById('profile-name-display').innerText=currentUser.name||'مستخدم';
+  document.getElementById('profile-location-display').innerText=currentUser.location||'';
+  const avatar=document.getElementById('profile-avatar-img');
+  avatar.innerHTML=currentUser.avatar?`<img src="${currentUser.avatar}">`:'👤';
+  const myAds=products.filter(p=>p.sellerId===currentUser.id);
+  document.getElementById('my-ads-count').innerText=myAds.length;
+  document.getElementById('my-friends-count').innerText=(currentUser.friends||[]).length;
+  const myAdsContainer=document.getElementById('my-ads-list');
+  if(myAds.length===0){
+    myAdsContainer.innerHTML='<div style="color:#999;text-align:center;padding:20px;">لا توجد إعلانات بعد</div>';
+    return;
+  }
+  myAdsContainer.innerHTML=myAds.map((p,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0;cursor:pointer;" onclick="openProduct(${products.indexOf(p)})">
+      <div style="font-size:30px;">${p.image?'🖼️':p.emoji}</div>
+      <div style="flex:1;">
+        <div style="font-weight:bold;font-size:13px;">${p.title}</div>
+        <div style="font-size:12px;color:#999;">${p.price} دج | 👁️${p.views||0} | ❤️${p.likes||0}</div>
+      </div>
+    </div>`).join('');
+}
+function changeAvatar(){
+  if(!currentUser)return;
+  const input=document.createElement('input');
+  input.type='file';input.accept='image/*';
+  input.onchange=e=>{
+    const reader=new FileReader();
+    reader.onload=r=>{
+      currentUser.avatar=r.target.result;
+      const idx=users.findIndex(u=>u.id===currentUser.id);
+      if(idx!==-1)users[idx]=currentUser;
+      saveData();
+      updateProfileDisplay();
+    };
+    reader.readAsDataURL(e.target.files[0]);
+  };
+  input.click();
+}
+
+// ===== الرسائل =====
+function openChatWith(userId,userName){
+  if(!currentUser){showAuth();return;}
+  currentChatUser={id:userId,name:userName};
+  const chatKey=[currentUser.id,userId].sort().join('_');
+  if(!messages[chatKey])messages[chatKey]=[];
+  document.getElementById('chat-title').innerText='💬 '+userName;
+  renderMessages(chatKey);
+  openPage('chat-page');
+}
+function renderMessages(chatKey){
+  const msgs=messages[chatKey]||[];
+  const container=document.getElementById('chat-messages');
+  container.innerHTML=msgs.map(m=>`
+    <div class="${m.from==currentUser.id?'msg-out':'msg-in'}">
+      <div class="${m.from==currentUser.id?'msg-bubble-out':'msg-bubble-in'}">${m.text}</div>
+    </div>`).join('');
+  container.scrollTop=container.scrollHeight;
+}
+function sendMsg(){
+  const input=document.getElementById('msg-input');
+  const text=input.value.trim();
+  if(!text||!currentChatUser)return;
+  const chatKey=[currentUser.id,currentChatUser.id].sort().join('_');
+  if(!messages[chatKey])messages[chatKey]=[];
+  messages[chatKey].push({from:currentUser.id,text,time:Date.now()});
+  addNotification(currentChatUser.id,`💬 رسالة جديدة من ${currentUser.name}`);
+  saveData();
+  input.value='';
+  renderMessages(chatKey);
+}
+function loadChats(){
+  const list=document.getElementById('chats-list');
+  const myChats=Object.keys(messages).filter(k=>k.includes(String(currentUser.id)));
+  if(myChats.length===0){
+    list.innerHTML='<div style="text-align:center;padding:40px;color:#999;">لا توجد رسائل بعد</div>';
+    return;
+  }
+  list.innerHTML=myChats.map(key=>{
+    const ids=key.split('_');
+    const otherId=ids.find(id=>id!=String(currentUser.id));
+    const other=users.find(u=>u.id==otherId)||{name:'مستخدم',avatar:''};
+    const msgs=messages[key];
+    const last=msgs[msgs.length-1];
+    return `<div class="chat-item" onclick="openChatWith('${other.id}','${other.name}')">
+      <div class="chat-avatar">${other.avatar?`<img src="${other.avatar}">`:'👤'}</div>
+      <div>
+        <div class="chat-name">${other.name}</div>
+        <div class="chat-last">${last?last.text:''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ===== الإشعارات =====
+function addNotification(toUserId,text){
+  notifications.push({to:toUserId,text,time:Date.now(),read:false});
+  saveData();
+  checkNotifications();
+}
+function checkNotifications(){
+  if(!currentUser)return;
+  const myNotifs=notifications.filter(n=>n.to===currentUser.id&&!n.read);
+  const badge=document.getElementById('notif-badge');
+  if(myNotifs.length>0){badge.style.display='flex';badge.innerText=myNotifs.length;}
+  else badge.style.display='none';
+  const myFriends=friendRequests.filter(r=>r.to===currentUser.id&&r.status==='pending');
+  const fbadge=document.getElementById('friends-badge');
+  if(myFriends.length>0){fbadge.style.display='flex';fbadge.innerText=myFriends.length;}
+  else fbadge.style.display='none';
+}
+function loadNotifications(){
+  if(!currentUser)return;
+  const myNotifs=notifications.filter(n=>n.to===currentUser.id).reverse();
+  const list=document.getElementById('notif-list');
+  if(myNotifs.length===0){
+    list.innerHTML='<div style="text-align:center;padding:40px;color:#999;">لا توجد إشعارات</div>';
+    return;
+  }
+  list.innerHTML=myNotifs.map(n=>`
+    <div class="notif-item ${n.read?'':'unread'}">
+      <div class="notif-text">${n.text}</div>
+      <div class="notif-time">${new Date(n.time).toLocaleTimeString('ar')}</div>
+    </div>`).join('');
+  myNotifs.forEach(n=>n.read=true);
+  saveData();
+  checkNotifications();
+}
+
+// ===== الصداقة =====
+function sendFriendRequest(toId,toName){
+  if(!currentUser){showAuth();return;}
+  if(toId==currentUser.id){alert('لا يمكنك إرسال طلب لنفسك!');return;}
+  const exists=friendRequests.find(r=>r.from===currentUser.id&&r.to==toId);
+  if(exists){alert('تم إرسال الطلب مسبقاً!');return;}
+  friendRequests.push({from:currentUser.id,fromName:currentUser.name,to:toId,status:'pending'});
+  addNotification(toId,`👥 ${currentUser.name} أرسل لك طلب صداقة`);
+  saveData();
+  alert('✅ تم إرسال طلب الصداقة!');
+}
+function loadFriendRequests(){
+  if(!currentUser)return;
+  const myRequests=friendRequests.filter(r=>r.to===currentUser.id&&r.status==='pending');
+  const list=document.getElementById('friends-list');
+  if(myRequests.length===0){
+    list.innerHTML='<div style="text-align:center;padding:40px;color:#999;">لا توجد طلبات صداقة</div>';
+    return;
+  }
+  list.innerHTML=myRequests.map((r,i)=>`
+    <div class="friend-item">
+      <div class="chat-avatar">👤</div>
+      <div style="flex:1;"><div style="font-weight:bold;">${r.fromName}</div></div>
+      <div class="friend-btns">
+        <button class="btn-accept" onclick="acceptFriend(${i})">✅ قبول</button>
+        <button class="btn-reject" onclick="rejectFriend(${i})">❌ رفض</button>
+      </div>
+    </div>`).join('');
+}
+function acceptFriend(i){
+  const req=friendRequests.filter(r=>r.to===currentUser.id&&r.status==='pending')[i];
+  req.status='accepted';
+  currentUser.friends=currentUser.friends||[];
+  currentUser.friends.push(req.from);
+  const idx=users.findIndex(u=>u.id===currentUser.id);
+  if(idx!==-1)users[idx]=currentUser;
+  addNotification(req.from,`✅ ${currentUser.name} قبل طلب صداقتك!`);
+  saveData();
+  loadFriendRequests();
+  updateProfileDisplay();
+}
+function rejectFriend(i){
+  const req=friendRequests.filter(r=>r.to===currentUser.id&&r.status==='pending')[i];
+  req.status='rejected';
+  saveData();
+  loadFriendRequests();
+}
+
+// ===== الصيانة =====
+function checkMaintenance(){
+  const m=localStorage.getItem('bm_maintenance');
+  if(m==='true'){
+    const msg=localStorage.getItem('bm_maintenance_msg')||'نحن في تحديث للتطبيق، نعود قريباً! 🚀';
+    document.getElementById('maintenance-msg-display').innerText=msg;
+    const screen=document.getElementById('maintenance-screen');
+    screen.style.display='flex';
   }
 }
 
-// خروج
-function logout() {
-  document.getElementById('admin-panel').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('password-input').value = '';
+// ===== التنقل =====
+function openPage(id){
+  document.getElementById(id).style.display='block';
+  if(id==='messages-page')loadChats();
+  if(id==='notif-page')loadNotifications();
+  if(id==='friends-page')loadFriendRequests();
+  if(id==='profile-page')updateProfileDisplay();
+}
+function closePage(id){
+  document.getElementById(id).style.display='none';
+}
+function goHome(){
+  ['product-page','add-page','profile-page','messages-page',
+   'chat-page','notif-page','friends-page'].forEach(p=>{
+    const el=document.getElementById(p);
+    if(el)el.style.display='none';
+  });
+}
+function focusSearch(){
+  window.scrollTo(0,0);
+  document.querySelector('.search-bar').focus();
 }
 
-// فتح صفحة
-function openPage(id) {
-  document.getElementById(id).style.display = 'block';
-  if (id === 'ads-page') loadAds();
-  if (id === 'users-page') loadUsers();
-  if (id === 'cats-page') loadCategories();
-}
-
-// إغلاق صفحة
-function closePage(id) {
-  document.getElementById(id).style.display = 'none';
-}
-
-// تحميل الإعلانات
-function loadAds() {
-  const list = document.getElementById('ads-list');
-  list.innerHTML = ads.map((ad, i) => `
-    <div class="item-card">
-      <div class="item-title">${ad.title}</div>
-      <div class="item-sub">💰 ${ad.price} | 📂 ${ad.cat} | 👤 ${ad.seller}</div>
-      <div class="item-actions">
-        <button class="btn-delete" onclick="deleteAd(${i})">🗑️ حذف</button>
-        <button class="btn-move" onclick="moveAd(${i})">📂 نقل</button>
-        <button class="btn-star" onclick="starAd(${i})">⭐ تمييز</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-// تحميل المستخدمين
-function loadUsers() {
-  const list = document.getElementById('users-list');
-  list.innerHTML = users.map((u, i) => `
-    <div class="item-card">
-      <div class="item-title">👤 ${u.name}</div>
-      <div class="item-sub">📞 ${u.phone} | 📢 ${u.ads} إعلانات | ✅ ${u.status}</div>
-      <div class="item-actions">
-        <button class="btn-block" onclick="blockUser(${i})">🚫 حظر</button>
-        <button class="btn-delete" onclick="deleteUser(${i})">🗑️ حذف</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-// تحميل الأقسام
-function loadCategories() {
-  const list = document.getElementById('cats-list');
-  list.innerHTML = categories.map((c, i) => `
-    <div class="item-card">
-      <div class="item-title">${c.emoji} ${c.name}</div>
-      <div class="item-actions">
-        <button class="btn-delete" onclick="deleteCat(${i})">🗑️ حذف</button>
-      </div>
-    </div>
-  `).join('');
-  document.getElementById('stat-cats').innerText = categories.length;
-}
-
-// إضافة قسم
-function addCategory() {
-  const name = document.getElementById('new-cat-name').value.trim();
-  const emoji = document.getElementById('new-cat-emoji').value.trim();
-  if (!name || !emoji) { alert('⚠️ أدخل الاسم والأيقونة!'); return; }
-  categories.push({ name, emoji });
+// ===== التشغيل =====
+window.onload=()=>{
+  const saved=localStorage.getItem('bm_current_user');
+  if(saved){
+    currentUser=JSON.parse(saved);
+    updateHeaderState();
+    checkNotifications();
+  }
   loadCategories();
-  document.getElementById('new-cat-name').value = '';
-  document.getElementById('new-cat-emoji').value = '';
-  alert('✅ تم إضافة القسم!');
-}
-
-// حذف قسم
-function deleteCat(i) {
-  if (confirm('هل تريد حذف هذا القسم؟')) {
-    categories.splice(i, 1);
-    loadCategories();
-  }
-}
-
-// حذف إعلان
-function deleteAd(i) {
-  if (confirm('هل تريد حذف هذا الإعلان؟')) {
-    ads.splice(i, 1);
-    loadAds();
-    document.getElementById('stat-ads').innerText = ads.length;
-  }
-}
-
-// نقل إعلان
-function moveAd(i) {
-  const cats = categories.map(c => c.name).join('\n');
-  const newCat = prompt('اختر القسم:\n' + cats);
-  if (newCat) {
-    ads[i].cat = newCat;
-    loadAds();
-    alert('✅ تم نقل الإعلان!');
-  }
-}
-
-// تمييز إعلان
-function starAd(i) {
-  alert('⭐ تم تمييز الإعلان: ' + ads[i].title);
-}
-
-// حظر مستخدم
-function blockUser(i) {
-  if (confirm('هل تريد حظر ' + users[i].name + '؟')) {
-    users[i].status = '🚫 محظور';
-    loadUsers();
-  }
-}
-
-// حذف مستخدم
-function deleteUser(i) {
-  if (confirm('هل تريد حذف ' + users[i].name + '؟')) {
-    users.splice(i, 1);
-    loadUsers();
-    document.getElementById('stat-users').innerText = users.length;
-  }
-}
-
-// وضع الصيانة
-function toggleMaintenance() {
-  maintenanceMode = !maintenanceMode;
-  const bar = document.getElementById('maintenance-bar');
-  const btn = document.getElementById('maintenance-toggle-btn');
-  if (maintenanceMode) {
-    bar.classList.add('active');
-    btn.className = 'maintenance-btn btn-green-full';
-    btn.innerText = '🟢 إيقاف وضع الصيانة';
-    alert('⚠️ تم تفعيل وضع الصيانة!');
-  } else {
-    bar.classList.remove('active');
-    btn.className = 'maintenance-btn btn-red';
-    btn.innerText = '🔴 تفعيل وضع الصيانة';
-    alert('✅ تم إيقاف وضع الصيانة!');
-  }
-}
-
-// حفظ رسالة الصيانة
-function saveMaintMsg() {
-  alert('✅ تم حفظ رسالة الصيانة!');
-}
-
-// تغيير كلمة السر
-function changePassword() {
-  const old = document.getElementById('old-pass').value;
-  const newP = document.getElementById('new-pass').value;
-  const conf = document.getElementById('confirm-pass').value;
-  if (old !== adminPassword) { alert('❌ كلمة السر الحالية خاطئة!'); return; }
-  if (newP !== conf) { alert('❌ كلمة السر الجديدة غير متطابقة!'); return; }
-  if (newP.length < 6) { alert('❌ كلمة السر قصيرة جداً!'); return; }
-  adminPassword = newP;
-  alert('✅ تم تغيير كلمة السر بنجاح!');
-  document.getElementById('old-pass').value = '';
-  document.getElementById('new-pass').value = '';
-  document.getElementById('confirm-pass').value = '';
-}
-
-// حفظ الإيميل
-function saveEmail() {
-  alert('✅ تم حفظ الإيميل!');
-}
-
-// نسيت كلمة السر
-function forgotPassword() {
-  alert('📧 تم إرسال كلمة السر إلى: kamelkime@gmail.com');
-}
-
-// تحميل البيانات
-function loadData() {
-  document.getElementById('stat-users').innerText = users.length;
-  document.getElementById('stat-ads').innerText = ads.length;
-  document.getElementById('stat-cats').innerText = categories.length;
-
-  // زيارات عشوائية للتجربة
-  const visits = Math.floor(Math.random() * 200) + 50;
-  document.querySelectorAll('.stat-num')[3].innerText = visits;
-}
-// دخول بضغط Enter
-document.getElementById('password-input').addEventListener('keypress', function(e) {
-  if (e.key === 'Enter') checkLogin();
-});
+  loadProducts();
+  checkMaintenance();
+};
 </script>
 </body>
 </html>
