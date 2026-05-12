@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bladi Market - Admin</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#f5f5f5;color:#333}
+#login-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;z-index:1000}
+.login-box{background:white;border-radius:20px;padding:40px 30px;width:90%;max-width:400px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+.login-logo{font-size:50px;margin-bottom:10px}
+.login-title{font-size:22px;font-weight:bold;color:#006233;margin-bottom:5px}
+.login-sub{font-size:13px;color:#999;margin-bottom:25px}
+.login-input{width:100%;padding:13px;border:2px solid #e0e0e0;border-radius:10px;font-size:15px;outline:none;margin-bottom:15px;text-align:right}
+.login-input:focus{border-color:#006233}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#006233,#00a550);color:white;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer}
+.login-error{color:#e74c3c;font-size:13px;margin-top:10px;display:none}
+.forgot-link{color:#006233;font-size:13px;margin-top:15px;cursor:pointer;text-decoration:underline;display:block}
+#admin-panel{display:none}
+.admin-header{background:linear-gradient(135deg,#006233,#00a550);color:white;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+.admin-header h1{font-size:18px}
+.logout-btn{background:rgba(255,255,255,0.2);border:none;color:white;padding:8px 15px;border-radius:8px;cursor:pointer;font-size:13px}
+.maintenance-bar{background:#e74c3c;color:white;padding:10px 20px;display:none;justify-content:space-between;align-items:center}
+.maintenance-bar.active{display:flex}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:15px}
+.stat-card{background:white;border-radius:12px;padding:15px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.stat-icon{font-size:30px;margin-bottom:8px}
+.stat-num{font-size:28px;font-weight:bold;color:#006233}
+.stat-label{font-size:12px;color:#999;margin-top:4px}
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 15px 15px}
+.menu-card{background:white;border-radius:12px;padding:20px 15px;text-align:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.menu-icon{font-size:32px;margin-bottom:8px}
+.menu-title{font-size:13px;font-weight:bold;color:#333}
+.inner-page{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#f5f5f5;z-index:200;overflow-y:auto}
+.inner-header{background:linear-gradient(135deg,#006233,#00a550);color:white;padding:15px;display:flex;align-items:center;gap:10px;position:sticky;top:0}
+.back-btn{font-size:24px;cursor:pointer}
+.item-card{background:white;margin:10px 15px;border-radius:12px;padding:15px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.item-title{font-weight:bold;font-size:15px;color:#333}
+.item-sub{font-size:12px;color:#999;margin-top:4px}
+.item-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn-delete{padding:7px 15px;background:#e74c3c;color:white;border:none;border-radius:8px;cursor:pointer;font-size:12px}
+.btn-move{padding:7px 15px;background:#3498db;color:white;border:none;border-radius:8px;cursor:pointer;font-size:12px}
+.btn-star{padding:7px 15px;background:#f39c12;color:white;border:none;border-radius:8px;cursor:pointer;font-size:12px}
+.btn-pin{padding:7px 15px;background:#9b59b6;color:white;border:none;border-radius:8px;cursor:pointer;font-size:12px}
+.btn-block{padding:7px 15px;background:#e67e22;color:white;border:none;border-radius:8px;cursor:pointer;font-size:12px}
+.btn-green{width:100%;padding:13px;background:#006233;color:white;border:none;border-radius:10px;font-size:15px;font-weight:bold;cursor:pointer}
+.form-input{width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:10px;font-size:14px;outline:none;margin-bottom:12px}
+.form-input:focus{border-color:#006233}
+.add-form{background:white;margin:15px;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.add-form-title{font-weight:bold;margin-bottom:15px;font-size:15px}
+.maintenance-btn{width:calc(100% - 30px);margin:15px;padding:15px;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer}
+.btn-red{background:#e74c3c;color:white}
+.btn-green-full{background:#006233;color:white}
+.settings-card{background:white;margin:10px 15px;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.settings-title{font-weight:bold;font-size:15px;margin-bottom:15px;color:#333}
+.cat-img-preview{width:50px;height:50px;border-radius:50%;object-fit:cover;margin-left:10px}
+.img-upload-small{width:100%;height:80px;border:2px dashed #006233;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#f9fff9;margin-bottom:12px;font-size:13px;color:#999}
+</style>
+</head>
+<body>
+
+<!-- شاشة الدخول -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">🛡️</div>
+    <div class="login-title">Bladi Market</div>
+    <div class="login-sub">لوحة تحكم الأدمين</div>
+    <input class="login-input" id="password-input" type="password" placeholder="كلمة السر...">
+    <button class="login-btn" onclick="checkLogin()">🔐 دخول</button>
+    <div class="login-error" id="login-error">❌ كلمة السر خاطئة!</div>
+    <span class="forgot-link" onclick="forgotPassword()">نسيت كلمة السر؟</span>
+  </div>
+</div>
+
+<!-- لوحة التحكم -->
+<div id="admin-panel">
+  <div class="admin-header">
+    <h1>🛡️ لوحة التحكم</h1>
+    <button class="logout-btn" onclick="adminLogout()">خروج 🚪</button>
+  </div>
+  <div class="maintenance-bar" id="maintenance-bar">
+    <span>⚠️ وضع الصيانة مفعّل</span>
+    <button onclick="toggleMaintenance()" style="background:white;color:#e74c3c;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;">إيقاف</button>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-num" id="stat-users">0</div>
+      <div class="stat-label">المستخدمون</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📢</div>
+      <div class="stat-num" id="stat-ads">0</div>
+      <div class="stat-label">الإعلانات</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📂</div>
+      <div class="stat-num" id="stat-cats">0</div>
+      <div class="stat-label">الأقسام</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">💬</div>
+      <div class="stat-num" id="stat-comments">0</div>
+      <div class="stat-label">التعليقات</div>
+    </div>
+  </div>
+  <div class="menu-grid">
+    <div class="menu-card" onclick="openInner('ads-page')">
+      <div class="menu-icon">📢</div>
+      <div class="menu-title">إدارة الإعلانات</div>
+    </div>
+    <div class="menu-card" onclick="openInner('users-page')">
+      <div class="menu-icon">👥</div>
+      <div class="menu-title">إدارة المستخدمين</div>
+    </div>
+    <div class="menu-card" onclick="openInner('cats-page')">
+      <div class="menu-icon">📂</div>
+      <div class="menu-title">إدارة الأقسام</div>
+    </div>
+    <div class="menu-card" onclick="openInner('maintenance-page')">
+      <div class="menu-icon">🔧</div>
+      <div class="menu-title">وضع الصيانة</div>
+    </div>
+    <div class="menu-card" onclick="openInner('settings-page')">
+      <div class="menu-icon">⚙️</div>
+      <div class="menu-title">الإعدادات</div>
+    </div>
+    <div class="menu-card" onclick="openInner('reports-page')">
+      <div class="menu-icon">📊</div>
+      <div class="menu-title">التقارير</div>
+    </div>
+  </div>
+</div>
+
+<!-- صفحة الإعلانات -->
+<div class="inner-page" id="ads-page">
+  <div class="inner-header">
+    <span class="back-btn" onclick="closeInner('ads-page')">←</span>
+    <span style="font-size:17px;font-weight:bold;">📢 إدارة الإعلانات</span>
+  </div>
+  <div id="ads-list"></div>
+</div>
+
+<!-- صفحة المستخدمين -->
+<div class="inner-page" id="users-page">
+  <div class="inner-header">
+    <span class="back-btn" onclick="closeInner('users-page')">←</span>
+    <span style="font-size:17px;font-weight:bold;">👥 إدارة المستخدمين</span>
+  </div>
+  <div id="users-list"></div>
+</div>
+
+<!-- صفحة الأقسام -->
+<div class="inner-page" id="cats-page">
+  <div class="inner-header">
+    <span class="back-btn" onclick="closeInner('cats-page')">←</span>
+    <span style="font-size:17px;font-weight:bold;">📂 إدارة الأقسام</span>
+  </div>
+  <div class="add-form">
+    <div class="add-form-title">➕ إضافة قسم جديد</div>
+    <input class="form-input" id="new-cat-name" type="text" placeholder="اسم القسم...">
+    <input class="form-input" id="new-cat-emoji" type="text" placeholder="أيقونة القسم (مثال: 🍕)">
+    <div class="img-upload-small" onclick="document.getElementById('cat-img-input').click()">
+      📷 رفع صورة للقسم (اختياري)
+    </div>
+    <input type="file" id="cat-img-input" accept="image/*" style="display:none;" onchange="previewCatImg(this)">
+    <img id="cat-img-preview" style="display:none;width:60px;height:60px;border-radius:50%;object-fit:cover;margin-bottom:12px;">
+    <button class="btn-green" onclick="addCategory()">✅ إضافة القسم</button>
+  </div>
+  <div id="cats-list"></div>
+</div>
+
+<!-- صفحة الصيانة -->
+<div class="inner-page" id="maintenance-page">
+  <div class="inner-header">
+    <span class="back-btn" onclick="closeInner('maintenance-page')">←</span>
+    <span style="font-size:17px;font-weight:bold;">🔧 وضع الصيانة</span>
+  </div>
+  <div class="item-card" style="margin:15px;">
+    <div class="item-title">⚠️ تفعيل وضع الصيانة</div>
+    <div class="item-sub" style="margin-bottom:15px;">عند التفعيل يرى المستخدمون رسالة صيانة بدل التطبيق</div>
+    <button id="maintenance-toggle-btn" class="maintenance-btn btn-red" onclick="toggleMaintenance()">🔴 تفعيل وضع الصيانة</button>
+  </div>
+  <div class="add-form">
+    <div class="add-form-title">✏️ رسالة الصيانة</div>
+    <textarea class="form-input" id="maintenance-msg" style="height:80px;resize:none;">نحن في تحديث للتطبيق، نعود قريباً! 🚀</textarea>
+    <button class="btn-green" onclick="saveMaintMsg()">💾 حفظ الرسالة</button>
+  </div>
+</div>
+
+<!-- صفحة الإعدادات -->
+<div class="inner-page" id="settings-page">
+  <div class="inner-header">
+    <span class="back-btn" onclick="closeInner('settings-page')">←</span>
+    <span style="font-size:17px;font-weight:bold;">⚙️ الإعدادات</span>
+  </div>
+  <div class="settings-card">
+    <div class="settings-title">🔑 تغيير كلمة السر</div>
+    <input class="form-input" id="old-pass" type="password" placeholder="كلمة السر الحالية...">
+    <input class="form-input" id="new-pass" type="password" placeholder="كلمة السر الجديدة...">
+    <input class="form-input" id="confirm-pass" type="password" placeholder="تأكيد كلمة السر الجديدة...">
+    <button class="btn-green" onclick="changePassword()">🔐 تغيير كلمة السر</button>
+  </div>
+  <div class="settings-card">
+    <div class="settings-title">📧 إيميل الاسترداد</div>
+    <input class="form-input" id="recovery-email" type="email" value="kamelkime@gmail.com">
+    <button class="btn-green" onclick="saveEmail()">💾 حفظ الإيميل</button>
+  </div>
+</div>
+
+<!-- صفحة التقارير -->
+<div class="inner-page" id="reports-page">
+  <div class="inner-header">
+    <span class="back-btn" onclick="closeInner('reports-page')">←</span>
+    <span style="font-size:17px;font-weight:bold;">📊 التقارير</span>
+  </div>
+  <div class="stats-grid" style="padding:15px;">
+    <div class="stat-card">
+      <div class="stat-icon">❤️</div>
+      <div class="stat-num" id="stat-likes">0</div>
+      <div class="stat-label">إجمالي الإعجابات</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">👁️</div>
+      <div class="stat-num" id="stat-views">0</div>
+      <div class="stat-label">إجمالي المشاهدات</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📌</div>
+      <div class="stat-num" id="stat-pinned">0</div>
+      <div class="stat-label">الإعلانات المثبتة</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🚫</div>
+      <div class="stat-num" id="stat-blocked">0</div>
+      <div class="stat-label">المحظورون</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let adminPassword = localStorage.getItem('bm_admin_pass') || 'Guelma%2009';
+let maintenanceMode = localStorage.getItem('bm_maintenance') === 'true';
+let selectedCatImg = '';
+
+// تحميل البيانات المشتركة مع التطبيق
+function getData(key, def) {
+  return JSON.parse(localStorage.getItem(key) || JSON.stringify(def));
+}
+function setData(key, val) {
+  localStorage.setItem(key, JSON.stringify(val));
+}
+
+function checkLogin() {
+  const input = document.getElementById('password-input').value;
+  if (input === adminPassword) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'block';
+    loadStats();
+    if (maintenanceMode) document.getElementById('maintenance-bar').classList.add('active');
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+function adminLogout() {
+  document.getElementById('admin-panel').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('password-input').value = '';
+}
+
+function loadStats() {
+  const users = getData('bm_users', []);
+  const products = getData('bm_products', []);
+  const categories = getData('bm_categories', []);
+  const totalComments = products.reduce((a, p) => a + (p.comments || []).length, 0);
+  const totalLikes = products.reduce((a, p) => a + (p.likes || 0), 0);
+  const totalViews = products.reduce((a, p) => a + (p.views || 0), 0);
+  const pinned = products.filter(p => p.pinned).length;
+  const blocked = users.filter(u => u.blocked).length;
+  document.getElementById('stat-users').innerText = users.length;
+  document.getElementById('stat-ads').innerText = products.length;
+  document.getElementById('stat-cats').innerText = categories.length;
+  document.getElementById('stat-comments').innerText = totalComments;
+  if (document.getElementById('stat-likes')) document.getElementById('stat-likes').innerText = totalLikes;
+  if (document.getElementById('stat-views')) document.getElementById('stat-views').innerText = totalViews;
+  if (document.getElementById('stat-pinned')) document.getElementById('stat-pinned').innerText = pinned;
+  if (document.getElementById('stat-blocked')) document.getElementById('stat-blocked').innerText = blocked;
+}
+
+function openInner(id) {
+  document.getElementById(id).style.display = 'block';
+  if (id === 'ads-page') loadAds();
+  if (id === 'users-page') loadUsers();
+  if (id === 'cats-page') loadCats();
+  if (id === 'reports-page') loadStats();
+}
+
+function closeInner(id) {
+  document.getElementById(id).style.display = 'none';
+  loadStats();
+}
+
+// ===== الإعلانات =====
+function loadAds() {
+  const products = getData('bm_products', []);
+  const list = document.getElementById('ads-list');
+  if (products.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">لا توجد إعلانات</div>';
+    return;
+  }
+  list.innerHTML = products.map((p, i) => `
+    <div class="item-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <div style="font-size:30px;">${p.image ? '🖼️' : p.emoji || '📦'}</div>
+        <div>
+          <div class="item-title">${p.pinned ? '📌 ' : ''}${p.title}</div>
+          <div class="item-sub">💰 ${p.price} دج | 📂 ${p.category} | 👤 ${p.sellerName}</div>
+          <div class="item-sub">❤️ ${p.likes || 0} | 👁️ ${p.views || 0} | 💬 ${(p.comments || []).length}</div>
+        </div>
+      </div>
+      <div class="item-actions">
+        <button class="btn-delete" onclick="deleteAd(${i})">🗑️ حذف</button>
+        <button class="btn-move" onclick="moveAd(${i})">📂 نقل</button>
+        <button class="btn-pin" onclick="pinAd(${i})">${p.pinned ? '📌 إلغاء تثبيت' : '📍 تثبيت'}</button>
+        <button class="btn-star" onclick="starAd(${i})">⭐ مميز</button>
+      </div>
+    </div>`).join('');
+}
+
+function deleteAd(i) {
+  const products = getData('bm_products', []);
+  if (!confirm('حذف الإعلان: ' + products[i].title + '؟')) return;
+  products.splice(i, 1);
+  setData('bm_products', products);
+  loadAds();
+  loadStats();
+}
+
+function moveAd(i) {
+  const products = getData('bm_products', []);
+  const categories = getData('bm_categories', []);
+  const catNames = categories.map(c => c.name).join('\n');
+  const newCat = prompt('اختر القسم:\n' + catNames);
+  if (newCat) {
+    products[i].category = newCat;
+    setData('bm_products', products);
+    loadAds();
+    alert('✅ تم نقل الإعلان!');
+  }
+}
+
+function pinAd(i) {
+  const products = getData('bm_products', []);
+  products[i].pinned = !products[i].pinned;
+  setData('bm_products', products);
+  loadAds();
+}
+
+function starAd(i) {
+  const products = getData('bm_products', []);
+  products[i].featured = !products[i].featured;
+  setData('bm_products', products);
+  alert('⭐ تم تمييز الإعلان!');
+  loadAds();
+}
+
+// ===== المستخدمون =====
+function loadUsers() {
+  const users = getData('bm_users', []);
+  const list = document.getElementById('users-list');
+  if (users.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">لا يوجد مستخدمون بعد</div>';
+    return;
+  }
+  list.innerHTML = users.map((u, i) => `
+    <div class="item-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:#006233;display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden;">
+          ${u.avatar ? `<img src="${u.avatar}" style="width:100%;height:100%;object-fit:cover;">` : '👤'}
+        </div>
+        <div>
+          <div class="item-title">${u.name} ${u.blocked ? '🚫' : '✅'}</div>
+          <div class="item-sub">📧 ${u.email} | 📍 ${u.location || 'غير محدد'}</div>
+          <div class="item-sub">📢 ${getData('bm_products',[]).filter(p=>p.sellerId===u.id).length} إعلانات</div>
+        </div>
+      </div>
+      <div class="item-actions">
+        <button class="btn-block" onclick="blockUser(${i})">${u.blocked ? '✅ رفع الحظر' : '🚫 حظر'}</button>
+        <button class="btn-delete" onclick="deleteUser(${i})">🗑️ حذف</button>
+      </div>
+    </div>`).join('');
+}
+
+function blockUser(i) {
+  const users = getData('bm_users', []);
+  users[i].blocked = !users[i].blocked;
+  setData('bm_users', users);
+  loadUsers();
+  alert(users[i].blocked ? '🚫 تم حظر المستخدم!' : '✅ تم رفع الحظر!');
+}
+
+function deleteUser(i) {
+  const users = getData('bm_users', []);
+  if (!confirm('حذف المستخدم: ' + users[i].name + '؟')) return;
+  users.splice(i, 1);
+  setData('bm_users', users);
+  loadUsers();
+}
+
+// ===== الأقسام =====
+function loadCats() {
+  const categories = getData('bm_categories', []);
+  document.getElementById('stat-cats').innerText = categories.length;
+  const list = document.getElementById('cats-list');
+  list.innerHTML = categories.map((c, i) => `
+    <div class="item-card">
+      <div style="display:flex;align-items:center;gap:10px;">
+        ${c.img ? `<img src="${c.img}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">` : `<span style="font-size:30px;">${c.emoji}</span>`}
+        <div class="item-title">${c.name}</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn-delete" onclick="deleteCat(${i})">🗑️ حذف</button>
+      </div>
+    </div>`).join('');
+}
+
+function previewCatImg(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    selectedCatImg = e.target.result;
+    const preview = document.getElementById('cat-img-preview');
+    preview.src = selectedCatImg;
+    preview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function addCategory() {
+  const name = document.getElementById('new-cat-name').value.trim();
+  const emoji = document.getElementById('new-cat-emoji').value.trim() || '📦';
+  if (!name) { alert('⚠️ أدخل اسم القسم!'); return; }
+  const categories = getData('bm_categories', []);
+  categories.push({ name, emoji, img: selectedCatImg });
+  setData('bm_categories', categories);
+  loadCats();
+  loadStats();
+  document.getElementById('new-cat-name').value = '';
+  document.getElementById('new-cat-emoji').value = '';
+  document.getElementById('cat-img-preview').style.display = 'none';
+  selectedCatImg = '';
+  alert('✅ تم إضافة القسم! سيظهر في التطبيق تلقائياً.');
+}
+
+function deleteCat(i) {
+  const categories = getData('bm_categories', []);
+  if (!confirm('حذف القسم: ' + categories[i].name + '؟')) return;
+  categories.splice(i, 1);
+  setData('bm_categories', categories);
+  loadCats();
+  loadStats();
+}
+
+// ===== الصيانة =====
+function toggleMaintenance() {
+  maintenanceMode = !maintenanceMode;
+  localStorage.setItem('bm_maintenance', maintenanceMode);
+  const bar = document.getElementById('maintenance-bar');
+  const btn = document.getElementById('maintenance-toggle-btn');
+  if (maintenanceMode) {
+    bar.classList.add('active');
+    btn.className = 'maintenance-btn btn-green-full';
+    btn.innerText = '🟢 إيقاف وضع الصيانة';
+    alert('⚠️ تم تفعيل وضع الصيانة! المستخدمون لن يروا التطبيق.');
+  } else {
+    bar.classList.remove('active');
+    btn.className = 'maintenance-btn btn-red';
+    btn.innerText = '🔴 تفعيل وضع الصيانة';
+    alert('✅ تم إيقاف وضع الصيانة! التطبيق يعمل الآن.');
+  }
+}
+
+function saveMaintMsg() {
+  const msg = document.getElementById('maintenance-msg').value;
+  localStorage.setItem('bm_maintenance_msg', msg);
+  alert('✅ تم حفظ رسالة الصيانة!');
+}
+
+// ===== الإعدادات =====
+function changePassword() {
+  const old = document.getElementById('old-pass').value;
+  const newP = document.getElementById('new-pass').value;
+  const conf = document.getElementById('confirm-pass').value;
+  if (old !== adminPassword) { alert('❌ كلمة السر الحالية خاطئة!'); return; }
+  if (newP !== conf) { alert('❌ كلمة السر الجديدة غير متطابقة!'); return; }
+  if (newP.length < 6) { alert('❌ كلمة السر قصيرة جداً!'); return; }
+  adminPassword = newP;
+  localStorage.setItem('bm_admin_pass', newP);
+  alert('✅ تم تغيير كلمة السر بنجاح!');
+  document.getElementById('old-pass').value = '';
+  document.getElementById('new-pass').value = '';
+  document.getElementById('confirm-pass').value = '';
+}
+
+function saveEmail() {
+  const email = document.getElementById('recovery-email').value;
+  localStorage.setItem('bm_recovery_email', email);
+  alert('✅ تم حفظ الإيميل!');
+}
+
+function forgotPassword() {
+  const email = localStorage.getItem('bm_recovery_email') || 'kamelkime@gmail.com';
+  alert('📧 كلمة السر هي:\n' + adminPassword + '\n\nسيتم إرسالها إلى: ' + email);
+}
+
+document.getElementById('password-input').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') checkLogin();
+});
+</script>
+</body>
+</html>
